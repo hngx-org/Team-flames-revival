@@ -7,19 +7,30 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin{
+  late AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
-    _navigateToHome();
+    _controller = AnimationController(vsync: this)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _navigateToHome();
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   _navigateToHome() async {
-    await Future.delayed(Duration(seconds: 5), () {
-      // Navigate to game's home screen or main menu after 5 seconds
+    await Future.delayed(Duration(seconds: 1), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) =>
-            MenuScreen(), // Replace with your game's main screen
+        builder: (context) => MenuScreen(),
       ));
     });
   }
@@ -27,8 +38,30 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Lottie.asset('assets/animations/breakout_animation.json'),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/atari_splash.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment:
+              MainAxisAlignment.end, // Position the child at the bottom
+          children: [
+            Lottie.network(
+              'https://lottie.host/a432a44b-e8b1-41f6-9dad-76f3db07b760/kra5G5FHZR.json',
+              controller: _controller,
+              onLoaded: (composition) {
+                _controller
+                  ..duration = composition.duration
+                  ..forward();
+              },
+            ),
+            SizedBox(height: 20), // Give some space at the bottom
+          ],
+        ),
       ),
     );
   }
