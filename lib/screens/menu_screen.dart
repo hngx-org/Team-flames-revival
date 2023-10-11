@@ -1,9 +1,6 @@
 import 'package:breakout_revival/components/menu_button.dart';
 import 'package:breakout_revival/screens/breakout_game_screen.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:breakout_revival/game/breakout_revival_game.dart';
-import 'package:lottie/lottie.dart';
 
 class MenuScreen extends StatefulWidget {
   @override
