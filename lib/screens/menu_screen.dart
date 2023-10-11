@@ -1,6 +1,7 @@
 import 'package:breakout_revival/components/menu_button.dart';
 import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class MenuScreen extends StatefulWidget {
   @override
@@ -124,8 +125,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   'Close',
                   onPressed: () {
                     // Navigator.of(context).pop();
-                  },))
-            // Lottie.network('https://lottie.host/a432a44b-e8b1-41f6-9dad-76f3db07b760/kra5G5FHZR.json')
+                  },)),
+            // Lottie.asset('assets/lottie/atari_loader.json')
           ]),
         ),
       ),

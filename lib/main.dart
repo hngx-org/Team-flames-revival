@@ -1,5 +1,6 @@
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/screens/menu_screen.dart';
+import 'package:breakout_revival/screens/splash_scrceen.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
-        home: MenuScreen());
+        home: SplashScreen());
   }
 }
