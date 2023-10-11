@@ -7,7 +7,7 @@ import 'package:flame/game.dart';
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   final double _spriteHeight = 30;
   bool movingRight = true;
-  double speed = 1.0; // Adjust the speed as needed
+  double speed = 2.0; 
 
   @override
   Future<void> onLoad() async {
