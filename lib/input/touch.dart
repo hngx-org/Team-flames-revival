@@ -1,31 +1,15 @@
-import 'dart:ui';
-
-import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
-import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
-import 'package:flame/input.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flame/palette.dart';
+import 'package:flutter/widgets.dart';
 
-class Touch extends Game with HorizontalDragDetector {
-  final PaddleComponent paddle;
-
-  Touch(this.paddle);
-
-  void onDragUpdate(DragUpdateDetails event) {
-    // Handle the drag update event here
-    // You can access the horizontal movement using event.localPosition.dx
-    // Adjust the paddle position based on the drag update.
-    paddle.x += event.localPosition.dx;
-  }
-
-  @override
-  void render(Canvas canvas) {
-    // TODO: implement render
-  }
-
-  @override
-  void update(double dt) {
-    // TODO: implement update
-  }
-}
+JoystickComponent joystick = JoystickComponent(
+  knob: CircleComponent(
+    radius: 25,
+    paint: BasicPalette.red.withAlpha(200).paint(),
+  ),
+  background: CircleComponent(
+    radius: 50,
+    paint: BasicPalette.red.withAlpha(100).paint(),
+  ),
+  margin: EdgeInsets.only(bottom: 40, left: 20),
+);
