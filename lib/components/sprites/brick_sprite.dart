@@ -28,7 +28,7 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
         final brick = SpriteComponent(
           sprite: brickSprite,
           size: Vector2(brickWidth, brickHeight),
-          position: Vector2(xOffset + 10, row * brickHeight + 15),
+          position: Vector2(xOffset + 10, row * brickHeight + 50),
         );
 
         add(brick);
