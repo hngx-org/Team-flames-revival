@@ -34,6 +34,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_screenutil: ^5.9.0
+  lottie: ^2.6.0
+  simple_animations: ^5.0.2
 
 dev_dependencies:
 
@@ -59,6 +61,7 @@ flutter:
   assets:
     - assets/images/
     - assets/sounds/
+    - assets/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see
