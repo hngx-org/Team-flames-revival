@@ -1,4 +1,5 @@
 import 'package:breakout_revival/components/menu_button.dart';
+import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:breakout_revival/game/breakout_revival_game.dart';
@@ -16,6 +17,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late Animation<Offset> _offsetAnimation1;
   late Animation<Offset> _offsetAnimation2;
   late Animation<Offset> _offsetAnimation3;
+  
 
   @override
   void initState() {
@@ -74,35 +76,60 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
           ),
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SlideTransition(
-                position: _offsetAnimation1,
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            SlideTransition(
+              position: _offsetAnimation1,
+              child: build3DButton(
+                'Begin',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BreakoutGameScreen()),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 20),
+            SlideTransition(
+              position: _offsetAnimation2,
+              child: build3DButton(
+                'How to Play',
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: Text('How to Play'),
+                      content: Text(
+                          'Use the left and right arrow keys to move the paddle. '
+                          'The goal is to break all the bricks without letting the ball fall off the bottom of the screen. '
+                          'You have 3 lives. '
+                          'If you lose all 3 lives, you lose the game. '
+                          'If you break all the bricks, you win the game. '
+                          'Good luck!'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 20),
+            SlideTransition(
+                position: _offsetAnimation3, 
                 child: build3DButton(
-                  'Begin',
+                  'Close',
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GameWidget(
-                                game: BreakoutGame(),
-                              )),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 20),
-              SlideTransition(
-                position: _offsetAnimation2,
-                child: build3DButton('How to Play'),
-              ),
-              SizedBox(height: 20),
-              SlideTransition(
-                  position: _offsetAnimation3, child: build3DButton('Close')),
-                  // Lottie.network('https://lottie.host/a432a44b-e8b1-41f6-9dad-76f3db07b760/kra5G5FHZR.json')
-            ],
-          ),
+                    // Navigator.of(context).pop();
+                  },))
+            // Lottie.network('https://lottie.host/a432a44b-e8b1-41f6-9dad-76f3db07b760/kra5G5FHZR.json')
+          ]),
         ),
       ),
     );

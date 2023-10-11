@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
     return SizedBox(
       width: 200,
       child: ElevatedButton(
-      onPressed: () {
-        // Add your action here
-      },
+      onPressed: onPressed as void Function()?,
       style: ElevatedButton.styleFrom(
         primary: Colors.black,
         padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
