@@ -70,7 +70,7 @@ class BallComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
 
     // End game condition (ball out of screen)
     if (position.y >= game.size.y) {
-      // game.gameOver();
+      // gameRef.gameOver();
     }
   }
 }
