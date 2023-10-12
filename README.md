@@ -33,7 +33,6 @@ Breakout Revival offers a fantastic blend of game physics, graphics, and user in
 ### Prerequisites
 
 - Flutter SDK
-- Flames package
 
 ### Installation
 
