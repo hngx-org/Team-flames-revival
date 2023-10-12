@@ -8,11 +8,12 @@ import 'package:vector_math/vector_math_64.dart';
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   final double _spriteHeight = 30;
   bool movingRight = true;
-  double speed = 6.0;
+  double speed = 10.0;
 
   JoystickComponent joystick;
+  bool debugMode;
 
-  PaddleComponent({required this.joystick});
+  PaddleComponent({required this.joystick, required this.debugMode});
 
   @override
   Future<void> onLoad() async {
@@ -40,7 +41,7 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
       final direction = joystick.direction;
       if (direction != JoystickDirection.idle) {
         // Adjust the speed according to your preference
-        double joystickSpeed = 6.0;
+        double joystickSpeed = 10.0;
         if (direction == JoystickDirection.right) {
           position.x += joystickSpeed;
         } else if (direction == JoystickDirection.left) {
@@ -61,5 +62,10 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
     } else if (position.x - width / 2 < 0) {
       movingRight = true;
     }
+  }
+
+  void resetPosition() {
+    position = Vector2(
+        gameRef.size.x / 2 - width / 6 + 25, gameRef.size.y - height - 10);
   }
 }

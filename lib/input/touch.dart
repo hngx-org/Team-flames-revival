@@ -12,4 +12,5 @@ JoystickComponent joystick = JoystickComponent(
     paint: BasicPalette.red.withAlpha(100).paint(),
   ),
   margin: EdgeInsets.only(bottom: 40, left: 20),
+
 );
