@@ -1,7 +1,4 @@
-import 'package:breakout_revival/game/breakout_revival_game.dart';
-import 'package:breakout_revival/screens/menu_screen.dart';
 import 'package:breakout_revival/screens/splash_scrceen.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -9,14 +6,13 @@ void main() {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         home: SplashScreen());

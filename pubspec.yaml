@@ -28,13 +28,14 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  audioplayers: ^5.2.0
   cupertino_icons: ^1.0.2
   flame: ^1.9.1
   flame_audio: ^2.1.1
   flutter:
     sdk: flutter
   flutter_screenutil: ^5.9.0
-  lottie: ^2.6.0
+  google_fonts: ^6.1.0
   rxdart: ^0.27.7
   simple_animations: ^5.0.2
 

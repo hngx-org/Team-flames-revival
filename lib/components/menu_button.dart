@@ -7,7 +7,7 @@ Widget build3DButton(String label, {Function? onPressed}) {
       onPressed: onPressed as void Function()?,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.black,
-        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
           side: BorderSide(
@@ -27,7 +27,7 @@ Widget build3DButton(String label, {Function? onPressed}) {
           shadows: [
             Shadow(
               color: Colors.black.withOpacity(0.3),
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
               blurRadius: 5.0,
             ),
           ],
