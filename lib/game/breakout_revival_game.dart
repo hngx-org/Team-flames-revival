@@ -2,7 +2,7 @@ import 'package:breakout_revival/components/background_component.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
-import 'package:breakout_revival/input/touch.dart';
+import 'package:breakout_revival/input/joystick.dart';
 import 'package:breakout_revival/screens/game_over_screen.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';

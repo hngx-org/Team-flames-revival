@@ -19,17 +19,20 @@ class GameOverMenu extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            build3DButton(
-              'Play Again',
-              onPressed: () {
-                game.overlays.remove(GameOverMenu.ID);
-                game.resetGame();
-                game.resumeEngine();
-              },
-            ),
-            SizedBox(height: 20),
-          ]),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              build3DButton(
+                'Play Again',
+                onPressed: () {
+                  game.overlays.remove(GameOverMenu.ID);
+                  game.resetGame();
+                  game.resumeEngine();
+                },
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
