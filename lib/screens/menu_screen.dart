@@ -15,7 +15,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late Animation<Offset> _offsetAnimation1;
   late Animation<Offset> _offsetAnimation2;
   late Animation<Offset> _offsetAnimation3;
-  
 
   @override
   void initState() {
@@ -120,12 +119,13 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
             ),
             SizedBox(height: 20),
             SlideTransition(
-                position: _offsetAnimation3, 
+                position: _offsetAnimation3,
                 child: build3DButton(
                   'Close',
                   onPressed: () {
                     // Navigator.of(context).pop();
-                  },)),
+                  },
+                )),
             // Lottie.asset('assets/lottie/atari_loader.json')
           ]),
         ),
