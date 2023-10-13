@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 final game = BreakoutGame();
 
 class BreakoutGameScreen extends StatelessWidget {
+  const BreakoutGameScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GameWidget(

@@ -103,9 +103,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     score = 0;
 
     // Reset the ball's position
-    if (ballComponent != null) {
-      ballComponent.resetPosition();
-    }
+    ballComponent.resetPosition();
     // Reset the paddle's position
     if (ballComponent != null) {
       paddleComponent.resetPosition();

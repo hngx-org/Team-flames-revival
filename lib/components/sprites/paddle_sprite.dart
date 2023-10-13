@@ -1,9 +1,6 @@
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
-
-import 'package:vector_math/vector_math_64.dart';
 
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   final double _spriteHeight = 30;
