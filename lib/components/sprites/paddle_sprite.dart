@@ -8,10 +8,9 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   double speed = 10.0;
 
   JoystickComponent joystick;
-  @override
-  bool debugMode;
 
-  PaddleComponent({required this.joystick, required this.debugMode});
+
+  PaddleComponent({required this.joystick});
 
   @override
   Future<void> onLoad() async {
@@ -35,14 +34,16 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
     super.update(dt);
 
     // Check joystick input for paddle movement
-    final direction = joystick.direction;
-    if (direction != JoystickDirection.idle) {
-      // Adjust the speed according to your preference
-      double joystickSpeed = 10.0;
-      if (direction == JoystickDirection.right) {
-        position.x += joystickSpeed;
-      } else if (direction == JoystickDirection.left) {
-        position.x -= joystickSpeed;
+    if (joystick != null) {
+      final direction = joystick.direction;
+      if (direction != JoystickDirection.idle) {
+        // Adjust the speed according to your preference
+        double joystickSpeed = 15.0;
+        if (direction == JoystickDirection.right) {
+          position.x += joystickSpeed;
+        } else if (direction == JoystickDirection.left) {
+          position.x -= joystickSpeed;
+        }
       }
     }
 

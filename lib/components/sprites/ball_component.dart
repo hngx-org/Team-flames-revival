@@ -40,10 +40,10 @@ class BallComponent extends SpriteComponent
       // Collision with paddle
       // Reverse the vertical velocity
       velocity.y = -velocity.y;
-      // ogic to change the horizontal velocity based on where it hits the paddle
-      velocity.x = velocity.x + 2;
+      // Logic to change the horizontal velocity based on where it hits the paddle
+      velocity.x = velocity.x;
     } else {
-      for (final brick in bricks) {
+      for (final brick in bricks.toList()) {
         final brickRect = brick.toRect();
         if (ballRect.overlaps(brickRect)) {
           // Collision with a brick
@@ -53,22 +53,25 @@ class BallComponent extends SpriteComponent
           velocity.y = -velocity.y;
           // You can also add logic to change the horizontal velocity
           // Remove the brick from the game
+
+          // Decrement the total brick count
+          game.remainingBricks--;
+
+          // Check if all bricks are cleared and advance to the next level
+          if (game.remainingBricks == 0) {
+            game.checkBrickClearance();
+          }
         }
       }
     }
 
     // Check for collisions with screen boundaries
-    if (position.x <= 0 || position.x >= game.size.x - width) {
+    if (position.x <= 1 || position.x >= game.size.x - width) {
       velocity.x = -velocity.x;
     }
 
-    if (position.y <= 0) {
+    if (position.y <= 1) {
       velocity.y = -velocity.y;
-    }
-
-    // End game condition (ball out of screen)
-    if (position.y >= game.size.y) {
-      game.resetGame();
     }
   }
 
