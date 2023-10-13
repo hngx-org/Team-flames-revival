@@ -1,9 +1,6 @@
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
-
-import 'package:vector_math/vector_math_64.dart';
 
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   final double _spriteHeight = 30;
@@ -11,6 +8,7 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   double speed = 10.0;
 
   JoystickComponent joystick;
+  @override
   bool debugMode;
 
   PaddleComponent({required this.joystick, required this.debugMode});
@@ -37,16 +35,14 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
     super.update(dt);
 
     // Check joystick input for paddle movement
-    if (joystick != null) {
-      final direction = joystick.direction;
-      if (direction != JoystickDirection.idle) {
-        // Adjust the speed according to your preference
-        double joystickSpeed = 10.0;
-        if (direction == JoystickDirection.right) {
-          position.x += joystickSpeed;
-        } else if (direction == JoystickDirection.left) {
-          position.x -= joystickSpeed;
-        }
+    final direction = joystick.direction;
+    if (direction != JoystickDirection.idle) {
+      // Adjust the speed according to your preference
+      double joystickSpeed = 10.0;
+      if (direction == JoystickDirection.right) {
+        position.x += joystickSpeed;
+      } else if (direction == JoystickDirection.left) {
+        position.x -= joystickSpeed;
       }
     }
 

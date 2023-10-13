@@ -1,7 +1,10 @@
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+
 class BreakoutGameScreen extends StatelessWidget {
+  const BreakoutGameScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final game = BreakoutGame();
