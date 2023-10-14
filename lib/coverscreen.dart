@@ -22,8 +22,8 @@ static var gameFont = GoogleFonts.pressStart2p(
         ?  Container(
                 alignment: Alignment(0, -0.5),
                 child: Text(
-                 isGameOver? '': "ATARI BREAKOUT",
-                  style: gameFont.copyWith(color: Colors.deepPurple[100])
+                 "ATARI BREAKOUT",
+                  style: gameFont
                 ),
               )
         : Stack(
@@ -32,7 +32,7 @@ static var gameFont = GoogleFonts.pressStart2p(
                 alignment: Alignment(0, -0.5),
                 child: Text(
                   "ATARI BREAKOUT",
-                  style: gameFont
+                  style: gameFont.copyWith(color: Colors.deepPurple[200])
                 ),
               ),
 

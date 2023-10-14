@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 class MyBall extends StatelessWidget {
-  double ballX;
-  double ballY;
+  final double ballX;
+  final double ballY;
+  final double ballRadius; // Add this
+
   MyBall({
     required this.ballX,
     required this.ballY,
+    required this.ballRadius, // Add this
   });
 
   @override
@@ -13,8 +16,12 @@ class MyBall extends StatelessWidget {
     return Align(
       alignment: Alignment(ballX, ballY),
       child: Container(
-        height: 15,
-        width: 15,
+        height: MediaQuery.of(context).size.width *
+            ballRadius *
+            2, // Use the ballRadius to set the diameter
+        width: MediaQuery.of(context).size.width *
+            ballRadius *
+            2, // Use the ballRadius to set the diameter
         decoration: const BoxDecoration(
           color: Colors.deepPurple,
           shape: BoxShape.circle,
