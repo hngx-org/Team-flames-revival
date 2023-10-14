@@ -3,13 +3,12 @@ import 'package:breakout_revival/screens/game_over_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-final game = BreakoutGame();
-
 class BreakoutGameScreen extends StatelessWidget {
   const BreakoutGameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final game = BreakoutGame();
     return GameWidget(
       game: game,
       overlayBuilderMap: {
