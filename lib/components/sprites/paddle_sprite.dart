@@ -9,7 +9,6 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
 
   JoystickComponent joystick;
 
-
   PaddleComponent({required this.joystick});
 
   @override
@@ -38,7 +37,7 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
       final direction = joystick.direction;
       if (direction != JoystickDirection.idle) {
         // Adjust the speed according to your preference
-        double joystickSpeed = 15.0;
+        double joystickSpeed = speed;
         if (direction == JoystickDirection.right) {
           position.x += joystickSpeed;
         } else if (direction == JoystickDirection.left) {

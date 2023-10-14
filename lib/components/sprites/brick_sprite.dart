@@ -46,6 +46,6 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
     }
 
     // Now that the existing bricks are removed, you can add new ones
-    onLoad(); // Re-load the bricks
+    onLoad(); 
   }
 }

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:breakout_revival/components/background_component.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
 import 'package:breakout_revival/input/joystick.dart';
+
 import 'package:breakout_revival/screens/game_over_screen.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -15,10 +18,8 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
   int level = 1; // Current level
   int remainingBricks = 0; // Number of remaining bricks
-
   late TextComponent _scoreText;
   late TextComponent _levelText;
-
   PaddleComponent paddleComponent = PaddleComponent(joystick: joystick);
   BrickComponent brickComponent = BrickComponent();
   BallComponent ballComponent = BallComponent();
@@ -30,25 +31,19 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     await super.onLoad();
 
     add(BackgroundComponent());
-
-    add(brickComponent);
-
-    add(ballComponent);
-
     add(joystick);
-
     add(paddleComponent);
+    add(brickComponent);
+    add(ballComponent);
 
     _scoreText = TextComponent(
       text: 'Score: $score',
-      position: Vector2(20, 20),
+      position: Vector2(20, 20), // Adjust the position as needed
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
-        style: TextStyle(color: BasicPalette.white.color, fontSize: 30),
+        style: TextStyle(color: BasicPalette.white.color, fontSize: 20),
       ),
     );
-
-    add(_scoreText);
 
     _levelText = TextComponent(
       text: 'Level: $level',
@@ -59,20 +54,20 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       ),
     );
 
+    add(_scoreText);
     add(_levelText);
-
-    add(ScreenHitbox());
-
     resetGame();
   }
 
   @override
   void update(double dt) {
+    super.update(dt);
+
     if (!gamePaused) {
       super.update(dt);
 
       _scoreText.text = 'Score: $score';
-
+      // _levelText.text = 'Level: $level';
       // Check if the ball has fallen off the screen
       if (ballComponent.position.y > size.y) {
         gamePaused = true;
@@ -87,8 +82,6 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       // All bricks are cleared, advance to the next level
       level++;
       _levelText.text = 'Level: $level';
-
-      // You can add more logic here to change the level's properties, like increasing the ball speed, etc.
 
       // Reset the game for the new level
       resetGame();
