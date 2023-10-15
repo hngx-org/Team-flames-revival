@@ -1,27 +1,27 @@
 import 'dart:async';
-import 'package:breakout/ball.dart';
-import 'package:breakout/brick.dart';
-import 'package:breakout/coverscreen.dart';
-import 'package:breakout/gameoverscreen.dart';
-import 'package:breakout/level_two.dart';
-import 'package:breakout/player.dart';
 import 'package:flutter/material.dart';
+import 'ball.dart';
+import 'brick.dart';
+import 'coverscreen.dart';
+import 'gameoverscreen.dart';
+import 'player.dart';
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
-class HomePage extends StatefulWidget {
-  HomePage();
+class LevelTwo extends StatefulWidget {
+  static const routeName = "level_two";
+  LevelTwo();
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<LevelTwo> createState() => _LevelTwoState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _LevelTwoState extends State<LevelTwo> {
   // Ball variables
   double ballX = 0;
   double ballY = 0;
-  double ballXIncrement = 0.01;
-  double ballYIncrement = 0.01;
+  double ballXIncrement = 0.02; // Increase ball speed
+  double ballYIncrement = 0.02; // Increase ball speed
   double ballRadius = 0.02; // Represents 5% of the screen width
 
   int score = 0;
@@ -33,12 +33,11 @@ class _HomePageState extends State<HomePage> {
   double playerWidth = 0.4;
 
   // Bricks configuration
-  static double brickWidth = 0.4;
+  static int numberOfBricksInRow = 6; // Increase the number of bricks in a row
+  static int numberOfRows = 6; // Increase the number of rows
+  static double brickWidth = 0.3;
   static double brickHeight = 0.05;
   static double brickGap = 0.01;
-  static int numberOfBricksInRow = 4;
-  static int numberOfRows =
-      4; // adjust this value for the number of rows you want
   static double wallGap = 0.5 *
       (2 -
           numberOfBricksInRow * brickWidth -
@@ -64,16 +63,6 @@ class _HomePageState extends State<HomePage> {
   // Game state variables
   bool hasStartGame = false;
   bool isGameOver = false;
-  bool gameWon = false;
-
-  bool isGameWon() {
-    for (int i = 0; i < myBricks.length; i++) {
-      if (!myBricks[i][2]) {
-        return false; // There are still uncleared bricks
-      }
-    }
-    return true; // All bricks are cleared
-  }
 
   // Game logic methods
   void startGame() {
@@ -94,34 +83,8 @@ class _HomePageState extends State<HomePage> {
 
       // Check if brick is hit
       checkForBrokenBricks();
-
-      if (isGameWon()) {
-        timer.cancel();
-        setState(() {
-          gameWon = true; // Set a flag indicating the game is won
-          Navigator.of(context).pushNamed(LevelTwo.routeName);
-        });
-      }
     });
   }
-
-  // void checkForBrokenBricks() {
-  //   for (int i = 0; i < myBricks.length; i++) {
-  //     if (!myBricks[i][2] &&
-  //         ballX >= myBricks[i][0] &&
-  //         ballX <= myBricks[i][0] + brickWidth &&
-  //         ballY <= myBricks[i][1] + brickHeight &&
-  //         ballY >= myBricks[i][1]) {
-  //       setState(() {
-  //         myBricks[i][2] = true;
-
-  //         // Handle collision with bricks
-  //         ballYDirection =
-  //             ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
-  //       });
-  //     }
-  //   }
-  // }
 
   void checkForBrokenBricks() {
     for (int i = 0; i < myBricks.length; i++) {
@@ -149,27 +112,6 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
-  }
-
-  String findMin(double a, double b, double c, double d) {
-    List<double> myList = [a, b, c, d];
-    double currentMin = a;
-    for (int i = 0; i < myList.length; i++) {
-      if (myList[i] < currentMin) {
-        currentMin = myList[i];
-      }
-    }
-    if ((currentMin - a).abs() < 0.01) {
-      return 'left';
-    } else if ((currentMin - b).abs() < 0.01) {
-      return 'right';
-    } else if ((currentMin - c).abs() < 0.01) {
-      return 'top';
-    } else if ((currentMin - d).abs() < 0.01) {
-      return 'bottom';
-    }
-
-    return '';
   }
 
   bool isPlayerDead() {
@@ -225,32 +167,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // void resetGame() {
-  //   print('reset game .>>>>>>>>');
-  //   setState(() {
-  //     isGameOver = false;
-  //     hasStartGame = false;
-  //     score = 0;
-  //     playerX = -0.2;
-  //     ballY = 0;
-  //     ballX = 0;
-  //     myBricks = List.generate(
-  //       2 * numberOfBricksInRow,
-  //       (i) => [
-  //         firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-  //         i < numberOfBricksInRow ? firstBrickY : secondRowBrickY,
-  //         false
-  //       ],
-  //     );
-  //   });
-  // }
-
   void resetGame() {
     setState(() {
       // Reset game variables
       isGameOver = false;
       hasStartGame = false;
-      gameWon = false;
       playerX = -0.2;
       ballY = 0;
       ballX = 0;
@@ -258,7 +179,11 @@ class _HomePageState extends State<HomePage> {
       // Reset score to zero
       score = 0;
 
-      // Reset bricks to initial state
+      // Increase the number of bricks and rows for the new level
+      numberOfBricksInRow = 6;
+      numberOfRows = 6;
+
+      // Reset bricks to initial state for the new level
       myBricks = List.generate(
         numberOfRows * numberOfBricksInRow,
         (i) => [
@@ -267,6 +192,10 @@ class _HomePageState extends State<HomePage> {
           false
         ],
       );
+
+      // Increase the ball speed for the new level
+      ballXIncrement = 0.02;
+      ballYIncrement = 0.02;
     });
   }
 
