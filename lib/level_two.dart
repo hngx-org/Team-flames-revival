@@ -9,6 +9,7 @@ import 'player.dart';
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
 class LevelTwo extends StatefulWidget {
+  static const routeName = "level_two";
   LevelTwo();
 
   @override

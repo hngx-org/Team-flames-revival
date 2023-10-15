@@ -3,6 +3,7 @@ import 'package:breakout/ball.dart';
 import 'package:breakout/brick.dart';
 import 'package:breakout/coverscreen.dart';
 import 'package:breakout/gameoverscreen.dart';
+import 'package:breakout/level_two.dart';
 import 'package:breakout/player.dart';
 import 'package:flutter/material.dart';
 
@@ -63,6 +64,16 @@ class _HomePageState extends State<HomePage> {
   // Game state variables
   bool hasStartGame = false;
   bool isGameOver = false;
+  bool gameWon = false;
+
+  bool isGameWon() {
+    for (int i = 0; i < myBricks.length; i++) {
+      if (!myBricks[i][2]) {
+        return false; // There are still uncleared bricks
+      }
+    }
+    return true; // All bricks are cleared
+  }
 
   // Game logic methods
   void startGame() {
@@ -83,6 +94,14 @@ class _HomePageState extends State<HomePage> {
 
       // Check if brick is hit
       checkForBrokenBricks();
+
+      if (isGameWon()) {
+        timer.cancel();
+        setState(() {
+          gameWon = true; // Set a flag indicating the game is won
+          Navigator.of(context).pushNamed(LevelTwo.routeName);
+        });
+      }
     });
   }
 
@@ -231,6 +250,7 @@ class _HomePageState extends State<HomePage> {
       // Reset game variables
       isGameOver = false;
       hasStartGame = false;
+      gameWon = false;
       playerX = -0.2;
       ballY = 0;
       ballX = 0;
