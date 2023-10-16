@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
 class LevelThree extends StatefulWidget {
+  static const routeName = "level_three";
   LevelThree();
 
   @override

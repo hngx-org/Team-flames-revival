@@ -15,12 +15,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Atari Game',
       debugShowCheckedModeBanner: false,
       // home: LoadingPage(),
       home: LevelThree(),
       routes: {
         LevelTwo.routeName: (context) => LevelTwo(),
+        LevelThree.routeName: (context) => LevelThree(),
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:breakout/level_three.dart';
 import 'package:flutter/material.dart';
 import 'ball.dart';
 import 'brick.dart';
@@ -63,6 +64,18 @@ class _LevelTwoState extends State<LevelTwo> {
   // Game state variables
   bool hasStartGame = false;
   bool isGameOver = false;
+  bool gameWon = false;
+
+  //check if leveltwo has been cleared
+
+  bool isGameWon() {
+    for (int i = 0; i < myBricks.length; i++) {
+      if (!myBricks[i][2]) {
+        return false; // There are still uncleared bricks
+      }
+    }
+    return true; // All bricks are cleared
+  }
 
   // Game logic methods
   void startGame() {
@@ -83,6 +96,15 @@ class _LevelTwoState extends State<LevelTwo> {
 
       // Check if brick is hit
       checkForBrokenBricks();
+
+      //check if game is won
+      if (isGameWon()) {
+        timer.cancel();
+        setState(() {
+          gameWon = true; // Set a flag indicating the game is won
+          Navigator.of(context).pushNamed(LevelThree.routeName);
+        });
+      }
     });
   }
 
