@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:breakout_revival/components/background_component.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
@@ -7,16 +5,19 @@ import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
 import 'package:breakout_revival/input/joystick.dart';
 
 import 'package:breakout_revival/screens/game_over_screen.dart';
+import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:audioplayers/audioplayers.dart'; // Added this import
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
 class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
-  int level = 1; // Current level
+  int level = 0; // Current level
   int remainingBricks = 0; // Number of remaining bricks
   late TextComponent _scoreText;
   late TextComponent _levelText;
@@ -25,6 +26,9 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   BallComponent ballComponent = BallComponent();
 
   bool gamePaused = false;
+  bool isSoundOn = true;
+
+  late AudioPlayer audioPlayer;
 
   @override
   Future<void> onLoad() async {
@@ -36,9 +40,22 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     add(brickComponent);
     add(ballComponent);
 
+    // Load audio files using FlameAudio (not FlameAudio.audioCache)
+    FlameAudio.audioCache.loadAll([
+      Globals.brickeffect1,
+      Globals.brickeffect2,
+      Globals.brickeffect2,
+      Globals.brickeffect3,
+      Globals.brickeffect4,
+      Globals.screeneffect,
+    ]);
+
+    // Initialize the audio player
+    audioPlayer = AudioPlayer();
+
     _scoreText = TextComponent(
       text: 'Score: $score',
-      position: Vector2(20, 20), // Adjust the position as needed
+      position: Vector2(20, 20),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: TextStyle(color: BasicPalette.white.color, fontSize: 20),
@@ -47,7 +64,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
 
     _levelText = TextComponent(
       text: 'Level: $level',
-      position: Vector2(20, 60), // Adjust the position as needed
+      position: Vector2(20, 60),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: TextStyle(color: BasicPalette.white.color, fontSize: 30),
@@ -56,7 +73,10 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
 
     add(_scoreText);
     add(_levelText);
+    add(ScreenHitbox());
     resetGame();
+    checkBrickClearance();
+    FlameAudio.playLongAudio(Globals.backgroundMusic);
   }
 
   @override
@@ -64,11 +84,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     super.update(dt);
 
     if (!gamePaused) {
-      super.update(dt);
-
       _scoreText.text = 'Score: $score';
-      // _levelText.text = 'Level: $level';
-      // Check if the ball has fallen off the screen
       if (ballComponent.position.y > size.y) {
         gamePaused = true;
         overlays.add(GameOverMenu.ID);
@@ -76,35 +92,31 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     }
   }
 
-  // Function to check if all bricks are cleared and advance to the next level
+  void backgroundMusic() async {
+    if (isSoundOn) {
+      if (audioPlayer.state == PlayerState.playing) {
+        await audioPlayer.play(AssetSource(Globals.backgroundMusic));
+      }
+    }
+    if (isSoundOn = false) {
+      await audioPlayer.stop();
+    }
+  }
+
   void checkBrickClearance() {
     if (remainingBricks == 0) {
-      // All bricks are cleared, advance to the next level
       level++;
       _levelText.text = 'Level: $level';
-
-      // Reset the game for the new level
       resetGame();
     }
   }
 
   void resetGame() {
-    // Clear bricks
     brickComponent.reload();
-
-    // Reset the score
     score = 0;
-
-    // Reset the ball's position
     ballComponent.resetPosition();
-    // Reset the paddle's position
-    if (ballComponent != null) {
-      paddleComponent.resetPosition();
-    }
-
-    // Update the remaining bricks count
+    paddleComponent.resetPosition();
     remainingBricks = brickComponent.children.length;
-
     gamePaused = false;
   }
 }

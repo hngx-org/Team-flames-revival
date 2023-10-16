@@ -1,4 +1,4 @@
-import 'package:breakout_revival/components/menu_button.dart';
+import 'package:breakout_revival/utils/menu_button.dart';
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
