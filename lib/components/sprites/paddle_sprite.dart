@@ -1,14 +1,11 @@
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
-
-import 'package:vector_math/vector_math_64.dart';
 
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
   final double _spriteHeight = 30;
   bool movingRight = true;
-  double speed = 6.0;
+  double speed = 10.0;
 
   JoystickComponent joystick;
 
@@ -40,7 +37,7 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
       final direction = joystick.direction;
       if (direction != JoystickDirection.idle) {
         // Adjust the speed according to your preference
-        double joystickSpeed = 6.0;
+        double joystickSpeed = speed;
         if (direction == JoystickDirection.right) {
           position.x += joystickSpeed;
         } else if (direction == JoystickDirection.left) {
@@ -61,5 +58,10 @@ class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
     } else if (position.x - width / 2 < 0) {
       movingRight = true;
     }
+  }
+
+  void resetPosition() {
+    position = Vector2(
+        gameRef.size.x / 2 - width / 6 + 25, gameRef.size.y - height - 10);
   }
 }

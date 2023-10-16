@@ -28,12 +28,24 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
         final brick = SpriteComponent(
           sprite: brickSprite,
           size: Vector2(brickWidth, brickHeight),
-          position: Vector2(xOffset + 10, row * brickHeight + 50),
+          position: Vector2(xOffset, row * brickHeight + 50),
         );
 
         add(brick);
         xOffset += brickWidth;
       }
     }
+  }
+
+  void reload() {
+    // Iterate through the child components and remove them
+    for (final component in children.toList()) {
+      if (component is BrickComponent) {
+        remove(component);
+      }
+    }
+
+    // Now that the existing bricks are removed, you can add new ones
+    onLoad(); 
   }
 }
