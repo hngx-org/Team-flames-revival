@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:breakout/level_three.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'ball.dart';
 import 'brick.dart';
 import 'coverscreen.dart';
@@ -32,6 +35,9 @@ class _LevelTwoState extends State<LevelTwo> {
   double playerX = -0.2;
   double playerWidth = 0.4;
 
+  // Player variables
+  double originalPlayerWidth = 0.4;
+
   // Bricks configuration
   static int numberOfBricksInRow = 6; // Increase the number of bricks in a row
   static int numberOfRows = 6; // Increase the number of rows
@@ -63,9 +69,120 @@ class _LevelTwoState extends State<LevelTwo> {
   // Game state variables
   bool hasStartGame = false;
   bool isGameOver = false;
+  bool gameWon = false;
 
-  // Game logic methods
+  // Power-up variables
+  List<int> powerUpBrickIndices = [];
+  late PowerUp powerUp;
+
+  @override
+  void initState() {
+    super.initState();
+    resetGame();
+  }
+
+  // void resetGame() {
+  //   setState(() {
+  //     // Reset game variables
+  //     isGameOver = false;
+  //     hasStartGame = false;
+  //     playerX = -0.2;
+  //     ballY = 0;
+  //     ballX = 0;
+
+  //     // Reset score to zero
+  //     score = 0;
+
+  //     // Generate random indices for power-up bricks
+  //     powerUpBrickIndices.clear();
+  //     while (powerUpBrickIndices.length < 3) {
+  //       int randomIndex = Random().nextInt(myBricks.length);
+  //       if (!powerUpBrickIndices.contains(randomIndex)) {
+  //         powerUpBrickIndices.add(randomIndex);
+  //         myBricks[randomIndex][2] = true; // Set the brick as a power-up brick
+  //       }
+  //     }
+
+  //     // Reset the power-up
+  //     powerUp = PowerUp(0, 0, 0.02, false);
+
+  //     // Increase the number of bricks and rows for the new level
+  //     numberOfBricksInRow = 6;
+  //     numberOfRows = 6;
+
+  //     // Reset bricks to the initial state for the new level
+  //     myBricks = List.generate(
+  //       numberOfRows * numberOfBricksInRow,
+  //       (i) => [
+  //         firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
+  //         getBrickY(i ~/ numberOfBricksInRow),
+  //         false
+  //       ],
+  //     );
+
+  //     // Increase the ball speed for the new level
+  //     ballXIncrement = 0.02;
+  //     ballYIncrement = 0.02;
+  //   });
+  // }
+
+  void resetGame() {
+    setState(() {
+      // Reset game variables
+      isGameOver = false;
+      hasStartGame = false;
+      gameWon = false;
+      playerX = -0.2;
+      ballY = 0;
+      ballX = 0;
+
+      // Reset player's size to its original value
+      playerWidth = originalPlayerWidth;
+
+      // Reset score to zero
+      score = 0;
+
+      // Increase the number of bricks and rows for the new level
+      numberOfBricksInRow = 6;
+      numberOfRows = 6;
+
+      // Reset bricks to initial state for the new level
+      myBricks = List.generate(
+        numberOfRows * numberOfBricksInRow,
+        (i) => [
+          firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
+          getBrickY(i ~/ numberOfBricksInRow),
+          false
+        ],
+      );
+
+      // Increase the ball speed for the new level
+      ballXIncrement = 0.02;
+      ballYIncrement = 0.02;
+    });
+  }
+
+  bool isGameWon() {
+    for (int i = 0; i < myBricks.length; i++) {
+      if (!myBricks[i][2]) {
+        return false; // There are still uncleared bricks
+      }
+    }
+    return true; // All bricks are cleared
+  }
+
+  bool isPlayerDead() {
+    if (ballY >= 1) {
+      return true;
+    }
+    return false;
+  }
+
   void startGame() {
+    setState(() {
+      hasStartGame = true;
+    });
+
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
       // Update direction
       updateDirection();
@@ -83,6 +200,16 @@ class _LevelTwoState extends State<LevelTwo> {
 
       // Check if brick is hit
       checkForBrokenBricks();
+
+      // Check if the game is won
+      if (isGameWon()) {
+        timer.cancel();
+        setState(() {
+          gameWon = true;
+          // You can navigate to the next level or show a victory screen here
+          Navigator.of(context).pushNamed(LevelThree.routeName);
+        });
+      }
     });
   }
 
@@ -96,29 +223,19 @@ class _LevelTwoState extends State<LevelTwo> {
         setState(() {
           myBricks[i][2] = true;
 
-          // Adjust ball's position based on its direction
-          if (ballYDirection == Direction.DOWN) {
-            ballY = myBricks[i][1] - ballRadius;
-          } else {
-            ballY = myBricks[i][1] + brickHeight + ballRadius;
+          // Check if the brick is a power-up brick
+          if (powerUpBrickIndices.contains(i)) {
+            powerUp.active = true;
+            powerUp.powerUpX = myBricks[i][0] + brickWidth / 2;
+            powerUp.powerUpY = myBricks[i][1] + brickHeight / 2;
           }
 
-          // Reverse the ball's Y direction
+          // Handle collision with bricks
           ballYDirection =
               ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
-
-          // Increase the score
-          score += 10;
         });
       }
     }
-  }
-
-  bool isPlayerDead() {
-    if (ballY >= 1) {
-      return true;
-    }
-    return false;
   }
 
   void moveBall() {
@@ -132,6 +249,17 @@ class _LevelTwoState extends State<LevelTwo> {
         ballY += ballYIncrement;
       } else if (ballYDirection == Direction.UP) {
         ballY -= ballYIncrement;
+      }
+
+      // Check for power-up collision
+      if (powerUp.active &&
+          ballX + ballRadius >= powerUp.powerUpX - powerUp.powerUpRadius &&
+          ballX - ballRadius <= powerUp.powerUpX + powerUp.powerUpRadius &&
+          ballY + ballRadius >= powerUp.powerUpY - powerUp.powerUpRadius &&
+          ballY - ballRadius <= powerUp.powerUpY + powerUp.powerUpRadius) {
+        // Increase player's size
+        playerWidth *= 2;
+        powerUp.active = false; // Deactivate the power-up
       }
     });
   }
@@ -167,114 +295,137 @@ class _LevelTwoState extends State<LevelTwo> {
     });
   }
 
-  void resetGame() {
-    setState(() {
-      // Reset game variables
-      isGameOver = false;
-      hasStartGame = false;
-      playerX = -0.2;
-      ballY = 0;
-      ballX = 0;
-
-      // Reset score to zero
-      score = 0;
-
-      // Increase the number of bricks and rows for the new level
-      numberOfBricksInRow = 6;
-      numberOfRows = 6;
-
-      // Reset bricks to initial state for the new level
-      myBricks = List.generate(
-        numberOfRows * numberOfBricksInRow,
-        (i) => [
-          firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-          getBrickY(i ~/ numberOfBricksInRow),
-          false
-        ],
-      );
-
-      // Increase the ball speed for the new level
-      ballXIncrement = 0.02;
-      ballYIncrement = 0.02;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => startGame(),
-      onHorizontalDragUpdate: (details) {
-        if (details.delta.dx < 0) {
+    return RawKeyboardListener(
+      focusNode: FocusNode(),
+      autofocus: true,
+      onKey: (event) {
+        if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
           moveLeft();
-        } else if (details.delta.dx > 0) {
+        } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
           moveRight();
         }
       },
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.deepPurple[100],
-          body: Center(
-            child: Stack(
-              children: [
-                // Background elements
+      child: GestureDetector(
+        onTap: () => startGame(),
+        onHorizontalDragUpdate: (details) {
+          if (details.delta.dx < 0) {
+            moveLeft();
+          } else if (details.delta.dx > 0) {
+            moveRight();
+          }
+        },
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.deepPurple[100],
+            body: Center(
+              child: Stack(
+                children: [
+                  // Background elements
 
-                // Tap to play
-                CoverScreen(
-                  tapToPlay: hasStartGame,
-                  isGameOver: isGameOver,
-                  hasGameStarted: hasStartGame,
-                ),
-
-                // Game over screen
-                GameOverScreen(
-                  isGameOver: isGameOver,
-                  function: () {
-                    resetGame();
-                  },
-                ),
-
-                // Ball
-                MyBall(
-                  ballX: ballX,
-                  ballY: ballY,
-                  ballRadius: ballRadius,
-                ),
-
-                // Player
-                MyPlayer(
-                  playerX: playerX,
-                  playerWidth: playerWidth,
-                ),
-
-                ...List.generate(
-                  myBricks.length,
-                  (i) => MyBrick(
-                    brickX: myBricks[i][0],
-                    brickY: myBricks[i][1],
-                    brickWidth: brickWidth,
-                    brickHeight: brickHeight,
-                    brickBroken: myBricks[i][2],
+                  // Tap to play
+                  CoverScreen(
+                    tapToPlay: hasStartGame,
+                    isGameOver: isGameOver,
+                    hasGameStarted: hasStartGame,
                   ),
-                ),
 
-                // Score display
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Text(
-                    'Score: $score',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  // Game over screen
+                  GameOverScreen(
+                    isGameOver: isGameOver,
+                    function: () {
+                      resetGame();
+                    },
+                  ),
+
+                  // Ball
+                  MyBall(
+                    ballX: ballX,
+                    ballY: ballY,
+                    ballRadius: ballRadius,
+                  ),
+
+                  // Player
+                  MyPlayer(
+                    playerX: playerX,
+                    playerWidth: playerWidth,
+                  ),
+
+                  if (powerUp.active)
+                    PowerUpBox(
+                      powerUpX: powerUp.powerUpX,
+                      powerUpY: powerUp.powerUpY,
+                      powerUpRadius: powerUp.powerUpRadius,
+                    ),
+
+                  ...List.generate(
+                    myBricks.length,
+                    (i) => MyBrick(
+                      brickX: myBricks[i][0],
+                      brickY: myBricks[i][1],
+                      brickWidth: brickWidth,
+                      brickHeight: brickHeight,
+                      brickBroken: myBricks[i][2],
                     ),
                   ),
-                ),
-              ],
+
+                  // Score display
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Text(
+                      'Score: $score',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class PowerUpBox extends StatelessWidget {
+  final double powerUpX;
+  final double powerUpY;
+  final double powerUpRadius;
+
+  PowerUpBox({
+    required this.powerUpX,
+    required this.powerUpY,
+    required this.powerUpRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: (powerUpX - powerUpRadius) * MediaQuery.of(context).size.width,
+      top: (powerUpY - powerUpRadius) * MediaQuery.of(context).size.height,
+      child: Container(
+        width: 2 * powerUpRadius * MediaQuery.of(context).size.width,
+        height: 2 * powerUpRadius * MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: Colors.green,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+
+class PowerUp {
+  double powerUpX;
+  double powerUpY;
+  double powerUpRadius;
+  bool active;
+
+  PowerUp(this.powerUpX, this.powerUpY, this.powerUpRadius, this.active);
 }

@@ -1,4 +1,5 @@
 import 'package:breakout/homepage.dart';
+import 'package:breakout/level_three.dart';
 import 'package:breakout/level_two.dart';
 import 'package:breakout/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +15,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Atari Game',
       debugShowCheckedModeBanner: false,
       home: LoadingPage(),
+      // home: LevelTwo(),
       routes: {
         LevelTwo.routeName: (context) => LevelTwo(),
+        LevelThree.routeName: (context) => LevelThree(),
       },
     );
   }
