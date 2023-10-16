@@ -1,4 +1,5 @@
 import 'package:breakout/homepage.dart';
+import 'package:breakout/menu_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoadingPage extends StatefulWidget {
@@ -17,7 +18,7 @@ class _LoadingPageState extends State<LoadingPage> {
         return;
       }
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomePage(),
+        builder: (context) => MenuScreen(),
       ));
     });
   }

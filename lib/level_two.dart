@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:breakout/game/components/ball.dart';
+import 'package:breakout/game/components/brick.dart';
 import 'package:breakout/level_three.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'ball.dart';
-import 'brick.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'coverscreen.dart';
 import 'gameoverscreen.dart';
 import 'player.dart';
@@ -23,8 +24,8 @@ class _LevelTwoState extends State<LevelTwo> {
   // Ball variables
   double ballX = 0;
   double ballY = 0;
-  double ballXIncrement = 0.02; // Increase ball speed
-  double ballYIncrement = 0.02; // Increase ball speed
+  double ballXIncrement = 0.015; // Increase ball speed
+  double ballYIncrement = 0.015; // Increase ball speed
   double ballRadius = 0.02; // Represents 5% of the screen width
 
   int score = 0;
@@ -52,7 +53,15 @@ class _LevelTwoState extends State<LevelTwo> {
   static double firstBrickX = -1 + wallGap;
   static double firstBrickY = -0.9;
   static double secondRowBrickY = firstBrickY + brickHeight + brickGap;
-
+  bool hasWon = false;
+  bool isGamePaused = true;
+    ConfettiController _controllerCenter =
+      ConfettiController(duration: Duration(seconds: 2));
+  ConfettiController _controllerLeft =
+      ConfettiController(duration: Duration(seconds: 2));
+  ConfettiController _controllerRight =
+      ConfettiController(duration: Duration(seconds: 2));
+      int level = 2;
   static double getBrickY(int rowIndex) {
     return firstBrickY + rowIndex * (brickHeight + brickGap);
   }
@@ -70,120 +79,21 @@ class _LevelTwoState extends State<LevelTwo> {
   bool hasStartGame = false;
   bool isGameOver = false;
   bool gameWon = false;
+   Timer? gameTimer; 
+   List<int> powerUpBrickIndices = [];
+    // PowerUp powerUp;
 
-  // Power-up variables
-  List<int> powerUpBrickIndices = [];
-  late PowerUp powerUp;
 
-  @override
-  void initState() {
-    super.initState();
-    resetGame();
-  }
+  // Game logic methods
 
-  // void resetGame() {
-  //   setState(() {
-  //     // Reset game variables
-  //     isGameOver = false;
-  //     hasStartGame = false;
-  //     playerX = -0.2;
-  //     ballY = 0;
-  //     ballX = 0;
 
-  //     // Reset score to zero
-  //     score = 0;
-
-  //     // Generate random indices for power-up bricks
-  //     powerUpBrickIndices.clear();
-  //     while (powerUpBrickIndices.length < 3) {
-  //       int randomIndex = Random().nextInt(myBricks.length);
-  //       if (!powerUpBrickIndices.contains(randomIndex)) {
-  //         powerUpBrickIndices.add(randomIndex);
-  //         myBricks[randomIndex][2] = true; // Set the brick as a power-up brick
-  //       }
-  //     }
-
-  //     // Reset the power-up
-  //     powerUp = PowerUp(0, 0, 0.02, false);
-
-  //     // Increase the number of bricks and rows for the new level
-  //     numberOfBricksInRow = 6;
-  //     numberOfRows = 6;
-
-  //     // Reset bricks to the initial state for the new level
-  //     myBricks = List.generate(
-  //       numberOfRows * numberOfBricksInRow,
-  //       (i) => [
-  //         firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-  //         getBrickY(i ~/ numberOfBricksInRow),
-  //         false
-  //       ],
-  //     );
-
-  //     // Increase the ball speed for the new level
-  //     ballXIncrement = 0.02;
-  //     ballYIncrement = 0.02;
-  //   });
-  // }
-
-  void resetGame() {
-    setState(() {
-      // Reset game variables
-      isGameOver = false;
-      hasStartGame = false;
-      gameWon = false;
-      playerX = -0.2;
-      ballY = 0;
-      ballX = 0;
-
-      // Reset player's size to its original value
-      playerWidth = originalPlayerWidth;
-
-      // Reset score to zero
-      score = 0;
-
-      // Increase the number of bricks and rows for the new level
-      numberOfBricksInRow = 6;
-      numberOfRows = 6;
-
-      // Reset bricks to initial state for the new level
-      myBricks = List.generate(
-        numberOfRows * numberOfBricksInRow,
-        (i) => [
-          firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-          getBrickY(i ~/ numberOfBricksInRow),
-          false
-        ],
-      );
-
-      // Increase the ball speed for the new level
-      ballXIncrement = 0.02;
-      ballYIncrement = 0.02;
-    });
-  }
-
-  bool isGameWon() {
-    for (int i = 0; i < myBricks.length; i++) {
-      if (!myBricks[i][2]) {
-        return false; // There are still uncleared bricks
-      }
+   void startGame() {
+    // / Ensure any existing timer is canceled before starting a new one
+    hasStartGame = true;
+    if (gameTimer != null) {
+      gameTimer!.cancel();
     }
-    return true; // All bricks are cleared
-  }
-
-  bool isPlayerDead() {
-    if (ballY >= 1) {
-      return true;
-    }
-    return false;
-  }
-
-  void startGame() {
-    setState(() {
-      hasStartGame = true;
-    });
-
-    Timer.periodic(const Duration(milliseconds: 10), (timer) {
+    gameTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       // Update direction
       updateDirection();
 
@@ -201,17 +111,28 @@ class _LevelTwoState extends State<LevelTwo> {
       // Check if brick is hit
       checkForBrokenBricks();
 
-      // Check if the game is won
-      if (isGameWon()) {
-        timer.cancel();
+      if (allBricksBroken()) {
         setState(() {
-          gameWon = true;
-          // You can navigate to the next level or show a victory screen here
-          Navigator.of(context).pushNamed(LevelThree.routeName);
+          hasWon = true;
         });
       }
+
+      // if (isGameWon()) {
+      //   timer.cancel();
+      //   setState(() {
+      //     gameWon = true; // Set a flag indicating the game is won
+      //     Navigator.of(context).pushNamed(LevelTwo.routeName);
+      //   });
+      // }
     });
   }
+    bool isPlayerDead() {
+    if (ballY >= 1) {
+      return true;
+    }
+    return false;
+  }
+
 
   void checkForBrokenBricks() {
     for (int i = 0; i < myBricks.length; i++) {
@@ -224,18 +145,105 @@ class _LevelTwoState extends State<LevelTwo> {
           myBricks[i][2] = true;
 
           // Check if the brick is a power-up brick
-          if (powerUpBrickIndices.contains(i)) {
-            powerUp.active = true;
-            powerUp.powerUpX = myBricks[i][0] + brickWidth / 2;
-            powerUp.powerUpY = myBricks[i][1] + brickHeight / 2;
-          }
+          // if (powerUpBrickIndices.contains(i)) {
+          //   powerUp.active = true;
+          //   powerUp.powerUpX = myBricks[i][0] + brickWidth / 2;
+          //   powerUp.powerUpY = myBricks[i][1] + brickHeight / 2;
+          // }
 
           // Handle collision with bricks
           ballYDirection =
               ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
+
+          // Increase the score
+          score += 2;
         });
+
+        if (checkAllBricksBroken()) {
+          _controllerCenter.play();
+          _controllerLeft.play();
+          _controllerRight.play();
+
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              elevation: 10,
+              backgroundColor: const Color.fromARGB(255, 25, 7, 73),
+              title: Center(
+                child: Text(
+                  "Congratulations!",
+                  style: GoogleFonts.yujiSyuku(
+                    color: const Color.fromARGB(255, 211, 128, 155),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              content: Text(
+                "You have cleared all bricks! Ready for the next level?",
+                style: GoogleFonts.biryani(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+              actions: [
+                Center(
+                  child: SizedBox(
+                    width: 200,
+                    child: ElevatedButton(
+                      child: Text("Next Level"),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color.fromARGB(255, 130, 149, 158)),
+                      ),
+                      onPressed: () {
+                        // Logic for moving to the next level
+                        level++;
+
+                        Navigator.pop(context);
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) =>
+                                LevelThree())); // moe to level 3
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          ; // Increase level by 1
+        }
       }
     }
+  }
+
+   
+     bool allBricksBroken() {
+    for (var brick in myBricks) {
+      if (brick[2] == false) {
+        // If the brick is not broken
+        return false;
+      }
+    }
+    return true; // All bricks are broken
+  }
+
+
+    void pauseGame() {
+    if (gameTimer != null) {
+      gameTimer!.cancel();
+    }
+    setState(() {
+      isGamePaused = true;
+    });
+  }
+
+  void resumeGame() {
+    startGame();
+    setState(() {
+      isGamePaused = false;
+    });
   }
 
   void moveBall() {
@@ -252,15 +260,15 @@ class _LevelTwoState extends State<LevelTwo> {
       }
 
       // Check for power-up collision
-      if (powerUp.active &&
-          ballX + ballRadius >= powerUp.powerUpX - powerUp.powerUpRadius &&
-          ballX - ballRadius <= powerUp.powerUpX + powerUp.powerUpRadius &&
-          ballY + ballRadius >= powerUp.powerUpY - powerUp.powerUpRadius &&
-          ballY - ballRadius <= powerUp.powerUpY + powerUp.powerUpRadius) {
-        // Increase player's size
-        playerWidth *= 2;
-        powerUp.active = false; // Deactivate the power-up
-      }
+      // if (powerUp.active &&
+      //     ballX + ballRadius >= powerUp.powerUpX - powerUp.powerUpRadius &&
+      //     ballX - ballRadius <= powerUp.powerUpX + powerUp.powerUpRadius &&
+      //     ballY + ballRadius >= powerUp.powerUpY - powerUp.powerUpRadius &&
+      //     ballY - ballRadius <= powerUp.powerUpY + powerUp.powerUpRadius) {
+      //   // Increase player's size
+      //   playerWidth *= 2;
+      //   powerUp.active = false; // Deactivate the power-up
+      // }
     });
   }
 
@@ -295,34 +303,108 @@ class _LevelTwoState extends State<LevelTwo> {
     });
   }
 
+  void resetGame() {
+    setState(() {
+      // Reset game variables
+      isGameOver = false;
+      hasStartGame = false;
+      playerX = -0.2;
+      ballY = 0;
+      ballX = 0;
+
+      // Reset score to zero
+      score = 0;
+
+      // Increase the number of bricks and rows for the new level
+      numberOfBricksInRow = 6;
+      numberOfRows = 6;
+
+      // Reset bricks to initial state for the new level
+      myBricks = List.generate(
+        numberOfRows * numberOfBricksInRow,
+        (i) => [
+          firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
+          getBrickY(i ~/ numberOfBricksInRow),
+          false
+        ],
+      );
+
+      // Increase the ball speed for the new level
+      ballXIncrement = 0.02;
+      ballYIncrement = 0.02;
+    });
+  }
+    checkAllBricksBroken() {
+    bool allBroken = myBricks.every((brick) => brick[2] == true);
+    if (allBroken) {
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _controllerCenter = ConfettiController(duration: Duration(seconds: 2));
+    _controllerLeft = ConfettiController(duration: Duration(seconds: 2));
+    _controllerRight = ConfettiController(duration: Duration(seconds: 2));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _controllerCenter.dispose();
+    _controllerLeft.dispose();
+    _controllerRight.dispose();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
-      focusNode: FocusNode(),
-      autofocus: true,
-      onKey: (event) {
-        if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+    return GestureDetector(
+      onTap: () => startGame(),
+      onHorizontalDragUpdate: (details) {
+        if (details.delta.dx < 0) {
           moveLeft();
-        } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        } else if (details.delta.dx > 0) {
           moveRight();
         }
       },
-      child: GestureDetector(
-        onTap: () => startGame(),
-        onHorizontalDragUpdate: (details) {
-          if (details.delta.dx < 0) {
-            moveLeft();
-          } else if (details.delta.dx > 0) {
-            moveRight();
-          }
-        },
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.deepPurple[100],
-            body: Center(
-              child: Stack(
-                children: [
-                  // Background elements
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.deepPurple[100],
+          body: Center(
+            child: Stack(
+              children: [
+                // Background elements
+
+                   Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Text(
+                    "Level: $level",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                // Pause button
+                Positioned(
+                  top: 10,
+                  right: 100,
+                  child: InkWell(
+                    onTap:
+                        hasStartGame && !isGamePaused ? pauseGame : resumeGame,
+                    child: Icon(
+                      (!hasStartGame || isGamePaused)
+                          ? Icons.play_arrow
+                          : Icons.pause,
+                    ),
+                  ),
+                ),
 
                   // Tap to play
                   CoverScreen(
@@ -352,23 +434,61 @@ class _LevelTwoState extends State<LevelTwo> {
                     playerWidth: playerWidth,
                   ),
 
-                  if (powerUp.active)
-                    PowerUpBox(
-                      powerUpX: powerUp.powerUpX,
-                      powerUpY: powerUp.powerUpY,
-                      powerUpRadius: powerUp.powerUpRadius,
-                    ),
+                  // if (powerUp.active)
+                  //   PowerUpBox(
+                  //     powerUpX: powerUp.powerUpX,
+                  //     powerUpY: powerUp.powerUpY,
+                  //     powerUpRadius: powerUp.powerUpRadius,
+                  //   ),
 
-                  ...List.generate(
-                    myBricks.length,
-                    (i) => MyBrick(
-                      brickX: myBricks[i][0],
-                      brickY: myBricks[i][1],
-                      brickWidth: brickWidth,
-                      brickHeight: brickHeight,
-                      brickBroken: myBricks[i][2],
-                    ),
+                ...List.generate(
+                  myBricks.length,
+                  (i) => MyBrick(
+                    brickX: myBricks[i][0],
+                    brickY: myBricks[i][1],
+                    brickWidth: brickWidth,
+                    brickHeight: brickHeight,
+                    brickBroken: myBricks[i][2],
                   ),
+                ),
+
+                     Align(
+                  alignment: Alignment.topCenter,
+                  child: ConfettiWidget(
+                    confettiController: _controllerCenter,
+                    blastDirection: pi / 2,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 20,
+                    gravity: 1,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: ConfettiWidget(
+                    confettiController: _controllerLeft,
+                    blastDirection: pi / 3,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 10,
+                    gravity: 1,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: ConfettiWidget(
+                    confettiController: _controllerRight,
+                    blastDirection: 2 * pi / 3,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 10,
+                    gravity: 1,
+                  ),
+                ),
+
 
                   // Score display
                   Positioned(
@@ -385,11 +505,12 @@ class _LevelTwoState extends State<LevelTwo> {
                   ),
                 ],
               ),
+
+
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

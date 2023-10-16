@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:breakout/ball.dart';
-import 'package:breakout/brick.dart';
 import 'package:breakout/coverscreen.dart';
+import 'package:breakout/game/components/ball.dart';
+import 'package:breakout/game/components/brick.dart';
 import 'package:breakout/gameoverscreen.dart';
 import 'package:breakout/player.dart';
 import 'package:flutter/material.dart';
