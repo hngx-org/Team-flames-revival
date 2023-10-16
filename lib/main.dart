@@ -1,4 +1,5 @@
 import 'package:breakout/homepage.dart';
+import 'package:breakout/level_three.dart';
 import 'package:breakout/level_two.dart';
 import 'package:breakout/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: LoadingPage(),
+      // home: LoadingPage(),
+      home: LevelThree(),
       routes: {
         LevelTwo.routeName: (context) => LevelTwo(),
       },
