@@ -49,3 +49,15 @@ Breakout Revival offers a fantastic blend of game physics, graphics, and user in
 1. Clone the repository:
    ```sh
    git clone https://github.com/hngx-org/Team-flames-revival.git
+
+2. Navigate into project:
+   ```sh
+   cd Team-flames-revival
+
+3. Get Dependencies:
+   ```sh
+   flutter pub get
+
+4. Run App:
+   ```sh
+   flutter run
