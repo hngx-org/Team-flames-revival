@@ -2,11 +2,12 @@ import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 class BallComponent extends SpriteComponent
     with HasGameRef<BreakoutGame>, CollisionCallbacks {
   final double _spriteDiameter = 30;
-  double speed = 150.0;
+  double speed = 70.0;
   Vector2 velocity = Vector2(1.0, 1.0);
 
   @override
@@ -21,6 +22,7 @@ class BallComponent extends SpriteComponent
       (gameRef.size.x - _spriteDiameter) / 2,
       (gameRef.size.y - _spriteDiameter) / 2,
     );
+    add(CircleHitbox());
   }
 
   @override
@@ -64,21 +66,28 @@ class BallComponent extends SpriteComponent
         }
       }
     }
+  }
 
-    // Check for collisions with screen boundaries
-    if (position.x <= 1 || position.x >= game.size.x - width) {
-      velocity.x = -velocity.x;
-    }
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (other is ScreenHitbox) {
+      final Vector2 collisionPoint = intersectionPoints.first;
+      FlameAudio.play(Globals.screeneffect);
 
-    if (position.y <= 1) {
-      velocity.y = -velocity.y;
+      if (collisionPoint.x == 0 || collisionPoint.x == game.size.x) {
+        velocity.x = -velocity.x;
+      }
+      if (collisionPoint.y == 0) {
+        velocity.y = -velocity.y;
+      }
     }
   }
 
   void resetPosition() {
     position = Vector2(
-      (gameRef.size.x - _spriteDiameter) / 2,
-      (gameRef.size.y - _spriteDiameter) / 2,
+      (game.size.x - _spriteDiameter) / 2,
+      (game.size.y - _spriteDiameter) / 2,
     );
 
     // You can also reset the velocity to its initial state if needed

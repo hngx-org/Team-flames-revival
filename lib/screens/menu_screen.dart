@@ -1,9 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:breakout_revival/components/menu_button.dart';
+import 'package:breakout_revival/utils/menu_button.dart';
 import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -25,10 +26,13 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   Future<void> _playBackgroundMusic() async {
     if (isSoundOn) {
       print('sound is playing');
+
       await audioPlayer.play(
-        AssetSource('sounds/game_over.wav'),
+        AssetSource('sounds/breakout_soundtrack.mp3'),
         volume: 0.8,
       );
+
+      await audioPlayer.setReleaseMode(ReleaseMode.loop);
     } else {
       print('sound is paused');
       audioPlayer.pause();
@@ -195,7 +199,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
             SlideTransition(
                 position: _offsetAnimation3,
                 child: build3DButton(
-                  isSoundOn ? 'Sound Off' : 'Sound On',
+                  isSoundOn ? 'Music Off' : 'Music On',
                   // label: isSoundOn ? 'Sound Off' : 'Sound On',
                   onPressed: () {
                     // Navigator.of(context).pop();

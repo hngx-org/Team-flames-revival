@@ -1,3 +1,4 @@
+import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/screens/menu_screen.dart';
 import 'package:flutter/material.dart';
 // import 'package:lottie/lottie.dart';
@@ -12,12 +13,12 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   // late AnimationController _controller;
+ 
 
   @override
   void initState() {
     super.initState();
     _navigateToHome();
-   
   }
 
   @override
@@ -29,7 +30,9 @@ class _SplashScreenState extends State<SplashScreen>
   _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 1), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => MenuScreen(),
+        builder: (context) => MenuScreen(
+          
+        ),
       ));
     });
   }
@@ -45,7 +48,6 @@ class _SplashScreenState extends State<SplashScreen>
             fit: BoxFit.fill,
           ),
         ),
-        
       ),
     );
   }
