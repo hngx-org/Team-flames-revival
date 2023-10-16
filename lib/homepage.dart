@@ -1,11 +1,15 @@
 import 'dart:async';
-import 'package:breakout/ball.dart';
-import 'package:breakout/brick.dart';
+import 'dart:math';
+import 'package:breakout/game/components/ball.dart';
+import 'package:breakout/game/components/brick.dart';
 import 'package:breakout/coverscreen.dart';
 import 'package:breakout/gameoverscreen.dart';
 import 'package:breakout/level_two.dart';
 import 'package:breakout/player.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
@@ -46,8 +50,15 @@ class _HomePageState extends State<HomePage> {
 
   static double firstBrickX = -1 + wallGap;
   static double firstBrickY = -0.9;
+  bool hasWon = false;
+  bool isGamePaused = true;
   static double secondRowBrickY = firstBrickY + brickHeight + brickGap;
-
+  ConfettiController _controllerCenter = ConfettiController(duration: Duration(seconds: 2));
+  ConfettiController _controllerLeft = ConfettiController(duration: Duration(seconds: 2));
+  ConfettiController _controllerRight = ConfettiController(duration: Duration(seconds: 2));
+  int level = 1; // Initialize the game at level 1
+  Timer? gameTimer; // This will hold our game loop timer
+      
   static double getBrickY(int rowIndex) {
     return firstBrickY + rowIndex * (brickHeight + brickGap);
   }
@@ -77,7 +88,12 @@ class _HomePageState extends State<HomePage> {
 
   // Game logic methods
   void startGame() {
-    Timer.periodic(const Duration(milliseconds: 10), (timer) {
+    // / Ensure any existing timer is canceled before starting a new one
+    hasStartGame = true;
+    if(gameTimer != null){
+      gameTimer!.cancel();
+    }
+    gameTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       // Update direction
       updateDirection();
 
@@ -95,33 +111,34 @@ class _HomePageState extends State<HomePage> {
       // Check if brick is hit
       checkForBrokenBricks();
 
-      if (isGameWon()) {
-        timer.cancel();
+      if (allBricksBroken()) {
         setState(() {
-          gameWon = true; // Set a flag indicating the game is won
-          Navigator.of(context).pushNamed(LevelTwo.routeName);
+          hasWon = true;
         });
       }
+
+
+      // if (isGameWon()) {
+      //   timer.cancel();
+      //   setState(() {
+      //     gameWon = true; // Set a flag indicating the game is won
+      //     Navigator.of(context).pushNamed(LevelTwo.routeName);
+      //   });
+      // }
+
     });
   }
 
-  // void checkForBrokenBricks() {
-  //   for (int i = 0; i < myBricks.length; i++) {
-  //     if (!myBricks[i][2] &&
-  //         ballX >= myBricks[i][0] &&
-  //         ballX <= myBricks[i][0] + brickWidth &&
-  //         ballY <= myBricks[i][1] + brickHeight &&
-  //         ballY >= myBricks[i][1]) {
-  //       setState(() {
-  //         myBricks[i][2] = true;
+  bool allBricksBroken() {
+    for (var brick in myBricks) {
+      if (brick[2] == false) {
+        // If the brick is not broken
+        return false;
+      }
+    }
+    return true; // All bricks are broken
+  }
 
-  //         // Handle collision with bricks
-  //         ballYDirection =
-  //             ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
-  //       });
-  //     }
-  //   }
-  // }
 
   void checkForBrokenBricks() {
     for (int i = 0; i < myBricks.length; i++) {
@@ -145,32 +162,102 @@ class _HomePageState extends State<HomePage> {
               ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
 
           // Increase the score
-          score += 10;
+          score += 2;
         });
+
+            if (checkAllBricksBroken()) {
+          _controllerCenter.play();
+          _controllerLeft.play();
+          _controllerRight.play();
+
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              elevation: 10,
+              backgroundColor: const Color.fromARGB(255, 25, 7, 73),
+              title: Center(
+                child: Text(
+                  "Congratulations!",
+                  style: GoogleFonts.yujiSyuku(
+                    color: const Color.fromARGB(255, 211, 128, 155),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              content: Text(
+                "You have cleared all bricks! Ready for the next level?",
+                style: GoogleFonts.biryani(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+              actions: [
+                Center(
+                  child: SizedBox(
+                    width: 200,
+                    child: ElevatedButton(
+                      child: Text("Next Level"),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color.fromARGB(255, 130, 149, 158)),
+                      ),
+                      onPressed: () {
+                        // Logic for moving to the next level
+                        level++;
+                        
+                        Navigator.pop(context);
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> LevelTwo()));  // Resetting the game for now, you can replace this with logic for the next level
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+    
+          ; // Increase level by 1
+        }
       }
     }
   }
 
-  String findMin(double a, double b, double c, double d) {
-    List<double> myList = [a, b, c, d];
-    double currentMin = a;
-    for (int i = 0; i < myList.length; i++) {
-      if (myList[i] < currentMin) {
-        currentMin = myList[i];
-      }
+   void pauseGame() {
+    if (gameTimer != null) {
+      gameTimer!.cancel();
     }
-    if ((currentMin - a).abs() < 0.01) {
-      return 'left';
-    } else if ((currentMin - b).abs() < 0.01) {
-      return 'right';
-    } else if ((currentMin - c).abs() < 0.01) {
-      return 'top';
-    } else if ((currentMin - d).abs() < 0.01) {
-      return 'bottom';
-    }
-
-    return '';
+    setState(() {
+      isGamePaused = true;
+    });
   }
+
+  void resumeGame() {
+    startGame();
+    setState(() {
+      isGamePaused = false;
+    });
+  }
+
+  // String findMin(double a, double b, double c, double d) {
+  //   List<double> myList = [a, b, c, d];
+  //   double currentMin = a;
+  //   for (int i = 0; i < myList.length; i++) {
+  //     if (myList[i] < currentMin) {
+  //       currentMin = myList[i];
+  //     }
+  //   }
+  //   if ((currentMin - a).abs() < 0.01) {
+  //     return 'left';
+  //   } else if ((currentMin - b).abs() < 0.01) {
+  //     return 'right';
+  //   } else if ((currentMin - c).abs() < 0.01) {
+  //     return 'top';
+  //   } else if ((currentMin - d).abs() < 0.01) {
+  //     return 'bottom';
+  //   }
+
+  //   return '';
+  // }
 
   bool isPlayerDead() {
     if (ballY >= 1) {
@@ -225,25 +312,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // void resetGame() {
-  //   print('reset game .>>>>>>>>');
-  //   setState(() {
-  //     isGameOver = false;
-  //     hasStartGame = false;
-  //     score = 0;
-  //     playerX = -0.2;
-  //     ballY = 0;
-  //     ballX = 0;
-  //     myBricks = List.generate(
-  //       2 * numberOfBricksInRow,
-  //       (i) => [
-  //         firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-  //         i < numberOfBricksInRow ? firstBrickY : secondRowBrickY,
-  //         false
-  //       ],
-  //     );
-  //   });
-  // }
 
   void resetGame() {
     setState(() {
@@ -270,6 +338,38 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  checkAllBricksBroken() {
+    print('Checking all bricks broken>>>>>>>>>>>>>>>>>>>>>');
+    bool allBroken = myBricks.every((brick) => brick[2] == true);
+    if (allBroken) {
+      print('All bricks broken>>>>>>>>>>>>>>>>>>>>>');
+      return true;
+    }else{
+      return false;
+    }
+
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _controllerCenter = ConfettiController(duration: Duration(seconds: 2));
+    _controllerLeft = ConfettiController(duration: Duration(seconds: 2));
+    _controllerRight = ConfettiController(duration: Duration(seconds: 2));
+
+    super.initState();
+  }
+
+
+@override
+  void dispose() {
+    // TODO: implement dispose
+    _controllerCenter.dispose();
+    _controllerLeft.dispose();
+    _controllerRight.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -288,6 +388,28 @@ class _HomePageState extends State<HomePage> {
             child: Stack(
               children: [
                 // Background elements
+
+               Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Text(
+                    "Level: $level",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                // Pause button
+             Positioned(
+                  top: 10,
+                  right: 100,
+                  child: InkWell(
+                    onTap:hasStartGame && !isGamePaused ? pauseGame  : resumeGame,
+                    child: Icon(
+                      (!hasStartGame || isGamePaused) ? Icons.play_arrow : Icons.pause,
+                    ),
+                  ),
+                ),
+
 
                 // Tap to play
                 CoverScreen(
@@ -325,6 +447,46 @@ class _HomePageState extends State<HomePage> {
                     brickWidth: brickWidth,
                     brickHeight: brickHeight,
                     brickBroken: myBricks[i][2],
+                  ),
+                ),
+
+    
+
+                   // The confetti views
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConfettiWidget(
+                    confettiController: _controllerCenter,
+                    blastDirection: pi / 2,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 20,
+                    gravity: 1,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: ConfettiWidget(
+                    confettiController: _controllerLeft,
+                    blastDirection: pi / 3,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 10,
+                    gravity: 1,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: ConfettiWidget(
+                    confettiController: _controllerRight,
+                    blastDirection: 2 * pi / 3,
+                    maxBlastForce: 5,
+                    minBlastForce: 2,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 10,
+                    gravity: 1,
                   ),
                 ),
 
