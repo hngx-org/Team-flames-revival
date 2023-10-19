@@ -3,7 +3,7 @@ import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
 
 class PaddleComponent extends SpriteComponent with HasGameRef<BreakoutGame> {
-  final double _spriteHeight = 30;
+  final double _spriteHeight = 15;
   bool movingRight = true;
   double speed = 10.0;
 

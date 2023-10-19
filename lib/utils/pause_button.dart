@@ -9,18 +9,21 @@ class PauseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topRight,
-      child: TextButton(
-        child: Icon(
-          Icons.pause,
-          color: Colors.white,
+    return SafeArea(
+      child: Align(
+        heightFactor: 10,
+        alignment: Alignment.topRight,
+        child: TextButton(
+          child: Icon(
+            Icons.pause,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            game.pauseEngine();
+            game.overlays.add(PauseMenu.ID);
+            game.overlays.remove(PauseButton.ID);
+          },
         ),
-        onPressed: () {
-          game.pauseEngine();
-          game.overlays.add(PauseMenu.ID);
-          game.overlays.remove(PauseButton.ID);
-        },
       ),
     );
   }

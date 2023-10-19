@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
@@ -10,15 +9,21 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
   final double _brickSize = 30.0;
   int totalBricks = 30; // Initial total number of bricks
 
-  SharedPreferences? _prefs;
+  late SharedPreferences _prefs;
   LevelManager? _levelManager;
 
-  BrickComponent(LevelManager levelManager) {
-    _levelManager = levelManager;
+  // Factory constructor to perform async initialization
+  factory BrickComponent(LevelManager levelManager) {
+    final brickComponent = BrickComponent._();
+    brickComponent._initialize(levelManager);
+    return brickComponent;
   }
 
-  @override
-  Future<void> onLoad() async {
+  // Private constructor
+  BrickComponent._();
+
+  void _initialize(LevelManager levelManager) async {
+    _levelManager = levelManager;
     _prefs = await SharedPreferences.getInstance();
 
     final brickSprites = [
@@ -28,45 +33,42 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
       await gameRef.loadSprite(Globals.fourthBrickSprite),
     ];
 
-    int bricksAdded = 0;
-    int rowOffset = 0;
-    int maxColumns =
-        sqrt(totalBricks).ceil(); // Calculate the maximum number of columns
+    final bricks = <SpriteComponent>[];
+    final currentLevel = _levelManager!.currentLevel;
 
-    while (bricksAdded < totalBricks) {
-      for (int column = 0; column < maxColumns; column++) {
-        if (bricksAdded >= totalBricks) {
-          break;
+    final brickArrangement = _levelManager!.getBrickArrangementForLevel(currentLevel);
+
+    for (int i = 0; i < brickArrangement.length; i++) {
+      final row = brickArrangement[i];
+      for (int j = 0; j < row.length; j++) {
+        if (row[j] == 1) {
+          final brickLevel = currentLevel;
+          final brickSprite = brickSprites[brickLevel % brickSprites.length];
+
+          final brick = SpriteComponent(
+            sprite: brickSprite,
+            size: Vector2(_brickSize, _brickSize),
+          );
+
+          brick.position = Vector2(
+            j * _brickSize * 1.5,
+            i * _brickSize * 0.866,
+          );
+
+          bricks.add(brick);
         }
-
-        final brickLevel = _levelManager!.currentLevel;
-
-        // Determine the sprite based on the current level
-        final brickSprite = brickSprites[brickLevel % brickSprites.length];
-
-        final xOffset = (gameRef.size.x - maxColumns * _brickSize * 1.5) /
-            2; // Center the bricks horizontally
-        final yOffset =
-            (gameRef.size.y - (rowOffset + 1) * _brickSize * 0.866) /
-                2; // Center the bricks vertically
-
-        final brick = SpriteComponent(
-          sprite: brickSprite,
-          size: Vector2(_brickSize, _brickSize),
-          position: Vector2(
-            xOffset + column * _brickSize * 1.5,
-            yOffset +
-                rowOffset *
-                    _brickSize *
-                    0.866, // Adjust vertical positioning for hexagonal shape
-          ),
-        );
-
-        add(brick);
-        bricksAdded++;
       }
+    }
 
-      rowOffset++;
+    // Shuffle the bricks to arrange them in a random order
+    bricks.shuffle();
+
+    double xOffset = (gameRef.size.x - bricks.length * _brickSize * 1.5) / 2;
+
+    for (int i = 0; i < bricks.length; i++) {
+      final brick = bricks[i];
+      brick.position += Vector2(xOffset, 20);
+      add(brick);
     }
   }
 
@@ -77,6 +79,6 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
       }
     }
 
-    onLoad();
+    _initialize(_levelManager!);
   }
 }
