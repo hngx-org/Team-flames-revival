@@ -4,15 +4,21 @@ class LevelManager {
   static const _levelKey = 'current_level';
   static const _clearedLevelsKey = 'cleared_levels';
 
-  late SharedPreferences _prefs;
+  late final SharedPreferences _prefs;
 
   int _currentLevel = 1;
-  int _clearedLevels = 1;
-
-  LevelManager() {
+    int _clearedLevels = 1;
+  // Use a static method to create an instance of LevelManager which ensures that _prefs is initialized before the instance is returned.
+  LevelManager._(this._prefs) {
     _loadCurrentLevel();
     _loadClearedLevels();
   }
+
+   static Future<LevelManager> create() async {
+    final prefs = await SharedPreferences.getInstance();
+    return LevelManager._(prefs);
+  }
+
 
   int get currentLevel => _currentLevel;
 

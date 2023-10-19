@@ -1,10 +1,10 @@
+
 import 'package:breakout_revival/components/background_component.dart';
 import 'package:breakout_revival/components/levels.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
 import 'package:breakout_revival/input/joystick.dart';
-
 import 'package:breakout_revival/screens/game_over_screen.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
@@ -12,47 +12,56 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
-// Added this import
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
-  LevelManager levelManager = LevelManager(); // Create an instance of LevelManager
+  late final LevelManager levelManager; // Declare levelManager
   int remainingBricks = 0; // Number of remaining bricks
   late TextComponent _scoreText;
   late TextComponent _levelText;
-  PaddleComponent paddleComponent = PaddleComponent(joystick: joystick);
+  // late Joystick joystick;  // Declare joystick
+  late PaddleComponent paddleComponent;
   late BrickComponent brickComponent;
   BallComponent ballComponent = BallComponent();
-
   bool gamePaused = false;
   bool isSoundOn = true;
 
 
+   BreakoutGame() {
+    _initialize();
+  }
+
+   Future<void> _initialize() async {
+    levelManager = await LevelManager.create(); // Initialize levelManager
+    // joystick = Joystick(); // Initialize joystick
+    onLoad();
+  }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    paddleComponent = PaddleComponent(joystick: joystick);  // Initialize paddleComponent here
 
     add(BackgroundComponent());
     add(joystick);
     add(paddleComponent);
 
     // Initialize brickComponent with the levelManager
-    brickComponent = BrickComponent(levelManager);
+    brickComponent =  BrickComponent(levelManager);
 
-   await add(brickComponent);
+    add(brickComponent);
     add(ballComponent);
 
-    FlameAudio.audioCache.loadAll([
+    await FlameAudio.audioCache.loadAll([
       Globals.brickeffect1,
       Globals.brickeffect2,
       Globals.brickeffect2,
       Globals.brickeffect3,
       Globals.brickeffect4,
       Globals.screeneffect,
-      Globals.backgroundMusic,
+      // Globals.backgroundMusic,
     ]);
 
     _scoreText = TextComponent(
@@ -65,7 +74,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     );
 
     _levelText = TextComponent(
-      text: 'Level: ${levelManager.currentLevel}', // Set the level from levelManager
+      text: 'Level: ${levelManager.currentLevel}',  // Set the level from levelManager
       position: Vector2(20, 60),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
@@ -73,12 +82,12 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       ),
     );
 
-    await add(_scoreText);
-    await add(_levelText);
+    add(_scoreText);
+    add(_levelText);
     add(ScreenHitbox());
     resetGame();
-     checkBrickClearance();
-    backgroundMusic();
+    checkBrickClearance();
+    await backgroundMusic();
   }
 
   @override
@@ -94,21 +103,22 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     }
   }
 
-  void backgroundMusic() async {
+  Future<void> backgroundMusic() async {
     if (isSoundOn) {
-      await FlameAudio.bgm.play(Globals.backgroundMusic);
+      await FlameAudio.bgm.play(Globals.brickeffect1);
     }
   }
 
-  void stopBackgroundMusic() async {
-    if (isSoundOn = !isSoundOn) {
+  Future<void> stopBackgroundMusic() async {
+    isSoundOn = !isSoundOn;
+    if (!isSoundOn) {
       await FlameAudio.bgm.stop();
     }
   }
 
   void checkBrickClearance() {
     if (remainingBricks == 0) {
-      levelManager.levelCleared(); // Inform LevelManager that the level is cleared
+      levelManager.levelCleared();  // Inform LevelManager that the level is cleared
       _levelText.text = 'Level: ${levelManager.currentLevel}';
       resetGame();
     }
