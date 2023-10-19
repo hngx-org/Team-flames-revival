@@ -33,17 +33,17 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _toggleSound() {
+  void _toggleSound() async{
     setState(() {
       isSoundOn = !isSoundOn;
     });
-    _playBackgroundMusic();
+   await _playBackgroundMusic();
   }
 
   @override
   void initState() {
     super.initState();
-    _playBackgroundMusic();
+     _playBackgroundMusic();
     _controller1 = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
