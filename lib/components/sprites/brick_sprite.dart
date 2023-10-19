@@ -1,51 +1,82 @@
+import 'dart:math';
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../levels.dart';
 
 class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
   final double _brickSize = 30.0;
+  int totalBricks = 30; // Initial total number of bricks
+
+  SharedPreferences? _prefs;
+  LevelManager? _levelManager;
+
+  BrickComponent(LevelManager levelManager) {
+    _levelManager = levelManager;
+  }
 
   @override
   Future<void> onLoad() async {
-    // Load all four brick sprites
-    final firstBrick = await gameRef.loadSprite(Globals.firstBrickSprite);
-    final secondBrick = await gameRef.loadSprite(Globals.secondBrickSprite);
-    final thirdBrick = await gameRef.loadSprite(Globals.thirdBrickSprite);
-    final fourthBrick = await gameRef.loadSprite(Globals.fourthBrickSprite);
+    _prefs = await SharedPreferences.getInstance();
 
-    final brickWidth = _brickSize;
-    final brickHeight = _brickSize;
+    final brickSprites = [
+      await gameRef.loadSprite(Globals.firstBrickSprite),
+      await gameRef.loadSprite(Globals.secondBrickSprite),
+      await gameRef.loadSprite(Globals.thirdBrickSprite),
+      await gameRef.loadSprite(Globals.fourthBrickSprite),
+    ];
 
-    final numberOfBricksPerRow = (gameRef.size.x / brickWidth).floor();
-    final brickSprites = [firstBrick, secondBrick, thirdBrick, fourthBrick];
+    int bricksAdded = 0;
+    int rowOffset = 0;
+    int maxColumns =
+        sqrt(totalBricks).ceil(); // Calculate the maximum number of columns
 
-    for (int row = 0; row <= 3; row++) {
-      double xOffset = 0.0;
+    while (bricksAdded < totalBricks) {
+      for (int column = 0; column < maxColumns; column++) {
+        if (bricksAdded >= totalBricks) {
+          break;
+        }
 
-      for (int column = 0; column < numberOfBricksPerRow; column++) {
-        final brickSprite = brickSprites[row % brickSprites.length];
+        final brickLevel = _levelManager!.currentLevel;
+
+        // Determine the sprite based on the current level
+        final brickSprite = brickSprites[brickLevel % brickSprites.length];
+
+        final xOffset = (gameRef.size.x - maxColumns * _brickSize * 1.5) /
+            2; // Center the bricks horizontally
+        final yOffset =
+            (gameRef.size.y - (rowOffset + 1) * _brickSize * 0.866) /
+                2; // Center the bricks vertically
 
         final brick = SpriteComponent(
           sprite: brickSprite,
-          size: Vector2(brickWidth, brickHeight),
-          position: Vector2(xOffset, row * brickHeight + 100),
+          size: Vector2(_brickSize, _brickSize),
+          position: Vector2(
+            xOffset + column * _brickSize * 1.5,
+            yOffset +
+                rowOffset *
+                    _brickSize *
+                    0.866, // Adjust vertical positioning for hexagonal shape
+          ),
         );
 
         add(brick);
-        xOffset += brickWidth;
+        bricksAdded++;
       }
+
+      rowOffset++;
     }
   }
 
   void reload() {
-    // Iterate through the child components and remove them
     for (final component in children.toList()) {
       if (component is BrickComponent) {
         remove(component);
       }
     }
 
-    // Now that the existing bricks are removed, you can add new ones
     onLoad();
   }
 }

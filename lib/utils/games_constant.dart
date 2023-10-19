@@ -2,7 +2,7 @@ class Globals {
   Globals._();
 
   //sound
-  static const String backgroundMusic = 'breakout_soundtrack.mp3';
+  static const String backgroundMusic = 'intro.mp3';
   static const String brickeffect1 = 'brick_collision_1.wav';
   static const String brickeffect2 = 'brick_collision_2.wav';
   static const String brickeffect3 = 'brick_collision_3.wav';
@@ -12,6 +12,9 @@ class Globals {
 
   //images
   static const String backgroundSprite = 'background.png';
+  static const String backgroundSprite1 = 'background1.jpg';
+  static const String backgroundSprite2 = 'background2.jpg';
+  static const String backgroundSprite3 = 'background3.jpg';
   static const String ballSprite = 'ball.png';
   static const String firstBrickSprite = 'brick_1.png';
   static const String secondBrickSprite = 'brick_2.png';

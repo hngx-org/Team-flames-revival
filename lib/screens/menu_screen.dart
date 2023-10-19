@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:breakout_revival/utils/menu_button.dart';
 import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:flame_audio/flame_audio.dart';
@@ -20,26 +21,19 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late Animation<Offset> _offsetAnimation1;
   late Animation<Offset> _offsetAnimation2;
   late Animation<Offset> _offsetAnimation3;
-  AudioPlayer audioPlayer = AudioPlayer();
+
   bool isSoundOn = true;
 
   Future<void> _playBackgroundMusic() async {
     if (isSoundOn) {
-      print('sound is playing');
+      await FlameAudio.bgm.play(Globals.backgroundMusic, volume: 0.5);
 
-      await audioPlayer.play(
-        AssetSource('sounds/breakout_soundtrack.mp3'),
-        volume: 0.8,
-      );
-
-      await audioPlayer.setReleaseMode(ReleaseMode.loop);
     } else {
-      print('sound is paused');
-      audioPlayer.pause();
+      FlameAudio.bgm.stop();
     }
   }
 
-  _toggleSound() {
+  void _toggleSound() {
     setState(() {
       isSoundOn = !isSoundOn;
     });
@@ -99,7 +93,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     _controller1.dispose();
     _controller2.dispose();
     _controller3.dispose();
-    await audioPlayer.dispose();
+
     super.dispose();
   }
 
@@ -200,13 +194,10 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                 position: _offsetAnimation3,
                 child: build3DButton(
                   isSoundOn ? 'Music Off' : 'Music On',
-                  // label: isSoundOn ? 'Sound Off' : 'Sound On',
                   onPressed: () {
-                    // Navigator.of(context).pop();
                     _toggleSound();
                   },
                 )),
-            // Lottie.asset('assets/lottie/atari_loader.json')
           ]),
         ),
       ),
