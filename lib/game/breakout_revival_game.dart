@@ -42,7 +42,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     // Initialize brickComponent with the levelManager
     brickComponent = BrickComponent(levelManager);
 
-    add(brickComponent);
+   await add(brickComponent);
     add(ballComponent);
 
     FlameAudio.audioCache.loadAll([
@@ -73,11 +73,11 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       ),
     );
 
-    add(_scoreText);
-    add(_levelText);
+    await add(_scoreText);
+    await add(_levelText);
     add(ScreenHitbox());
     resetGame();
-    checkBrickClearance();
+     checkBrickClearance();
     backgroundMusic();
   }
 

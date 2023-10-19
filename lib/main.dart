@@ -1,4 +1,3 @@
-import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:breakout_revival/screens/splash_scrceen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +15,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
         title: 'Breakout Game',
         debugShowCheckedModeBanner: false,
-        home: SplashScreen());
+        home: SplashScreen()
+        );
   }
 }
