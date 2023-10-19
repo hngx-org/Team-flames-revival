@@ -1,14 +1,20 @@
+import 'dart:math';
 import 'package:breakout_revival/game/breakout_revival_game.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../levels.dart';
 
 class BallComponent extends SpriteComponent
     with HasGameRef<BreakoutGame>, CollisionCallbacks {
   final double _spriteDiameter = 15;
   double speed = 70.0;
   Vector2 velocity = Vector2(1.0, 1.0);
+
+  LevelManager _levelManager = LevelManager();
 
   @override
   Future<void> onLoad() async {
@@ -51,14 +57,24 @@ class BallComponent extends SpriteComponent
           // Collision with a brick
           game.brickComponent.remove(brick);
           game.score += 1;
+
+          if (bricks.isEmpty) {
+            // All bricks in the level are destroyed
+            _levelManager.levelCleared(); // Unlock the next level
+            _levelManager.increaseLevel(); // Increase the level
+          }
+
           // Reverse the vertical velocity
           velocity.y = -velocity.y;
           // Reverse the horizontal velocity
           velocity.x = -velocity.x;
-          
-          break; // Exit the loop after removing one brick
         }
       }
+    }
+
+    // Check if the level needs to be incremented
+    if (_levelManager.currentLevel != game.levelManager) {
+      game.levelManager = _levelManager;
     }
   }
 
