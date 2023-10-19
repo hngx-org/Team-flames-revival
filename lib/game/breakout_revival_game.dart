@@ -1,4 +1,5 @@
 import 'package:breakout_revival/components/background_component.dart';
+import 'package:breakout_revival/components/levels.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
@@ -11,24 +12,24 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:audioplayers/audioplayers.dart'; // Added this import
+// Added this import
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
 class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
-  int level = 0; // Current level
+  LevelManager levelManager = LevelManager(); // Create an instance of LevelManager
   int remainingBricks = 0; // Number of remaining bricks
   late TextComponent _scoreText;
   late TextComponent _levelText;
   PaddleComponent paddleComponent = PaddleComponent(joystick: joystick);
-  BrickComponent brickComponent = BrickComponent();
+  late BrickComponent brickComponent;
   BallComponent ballComponent = BallComponent();
 
   bool gamePaused = false;
   bool isSoundOn = true;
 
-  late AudioPlayer audioPlayer;
+
 
   @override
   Future<void> onLoad() async {
@@ -37,10 +38,13 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     add(BackgroundComponent());
     add(joystick);
     add(paddleComponent);
+
+    // Initialize brickComponent with the levelManager
+    brickComponent = BrickComponent(levelManager);
+
     add(brickComponent);
     add(ballComponent);
 
-    // Load audio files using FlameAudio (not FlameAudio.audioCache)
     FlameAudio.audioCache.loadAll([
       Globals.brickeffect1,
       Globals.brickeffect2,
@@ -48,10 +52,8 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       Globals.brickeffect3,
       Globals.brickeffect4,
       Globals.screeneffect,
+      Globals.backgroundMusic,
     ]);
-
-    // Initialize the audio player
-    audioPlayer = AudioPlayer();
 
     _scoreText = TextComponent(
       text: 'Score: $score',
@@ -63,7 +65,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     );
 
     _levelText = TextComponent(
-      text: 'Level: $level',
+      text: 'Level: ${levelManager.currentLevel}', // Set the level from levelManager
       position: Vector2(20, 60),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
@@ -76,7 +78,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     add(ScreenHitbox());
     resetGame();
     checkBrickClearance();
-    FlameAudio.playLongAudio(Globals.backgroundMusic);
+    backgroundMusic();
   }
 
   @override
@@ -94,19 +96,20 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
 
   void backgroundMusic() async {
     if (isSoundOn) {
-      if (audioPlayer.state == PlayerState.playing) {
-        await audioPlayer.play(AssetSource(Globals.backgroundMusic));
-      }
+      await FlameAudio.bgm.play(Globals.backgroundMusic);
     }
-    if (isSoundOn = false) {
-      await audioPlayer.stop();
+  }
+
+  void stopBackgroundMusic() async {
+    if (isSoundOn = !isSoundOn) {
+      await FlameAudio.bgm.stop();
     }
   }
 
   void checkBrickClearance() {
     if (remainingBricks == 0) {
-      level++;
-      _levelText.text = 'Level: $level';
+      levelManager.levelCleared(); // Inform LevelManager that the level is cleared
+      _levelText.text = 'Level: ${levelManager.currentLevel}';
       resetGame();
     }
   }

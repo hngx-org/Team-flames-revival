@@ -9,7 +9,11 @@ import 'package:flutter/material.dart';
 class PauseMenu extends StatefulWidget {
   static const String ID = 'PauseMenu';
   BreakoutGame game;
-  PauseMenu({super.key, required this.game});
+
+  PauseMenu({
+    super.key,
+    required this.game,
+  });
 
   @override
   State<PauseMenu> createState() => _PauseMenuState();
@@ -17,12 +21,6 @@ class PauseMenu extends StatefulWidget {
 
 class _PauseMenuState extends State<PauseMenu> {
   bool isSoundOn = true;
-  // _toggleSound() {
-  //   setState(() {
-  //     isSoundOn = !isSoundOn;
-  //   });
-  //   widget.game.backgroundMusic();
-  // }
 
   @override
   void initState() {
@@ -80,7 +78,7 @@ class _PauseMenuState extends State<PauseMenu> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Text(
-              'Level: ${widget.game.level}',
+              'Level: ${widget.game.levelManager.currentLevel}',
               style: const TextStyle(
                 fontSize: 50,
                 color: Colors.white,
@@ -119,14 +117,13 @@ class _PauseMenuState extends State<PauseMenu> {
             // label: isSoundOn ? 'Sound Off' : 'Sound On',
             onPressed: () {
               setState(() {
-                if(isSoundOn){
-                  widget.game.backgroundMusic();
-                }
-                if (isSoundOn=false) {
-                  widget.game.backgroundMusic();
-                }
+                isSoundOn = !isSoundOn;
               });
-              
+              if (isSoundOn) {
+                widget.game.backgroundMusic();
+              } else {
+                widget.game.stopBackgroundMusic();
+              }
             },
           )
         ],

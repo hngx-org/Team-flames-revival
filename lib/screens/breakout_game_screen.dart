@@ -11,6 +11,7 @@ class BreakoutGameScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = BreakoutGame();
+   
     return GameWidget(
       game: game,
       initialActiveOverlays: [PauseButton.ID],
@@ -20,7 +21,7 @@ class BreakoutGameScreen extends StatelessWidget {
         PauseButton.ID: (BuildContext context, BreakoutGame game) =>
             PauseButton(game: game),
         PauseMenu.ID: (BuildContext context, BreakoutGame game) =>
-            PauseMenu(game: game),
+            PauseMenu(game: game, ),
       },
     );
   }

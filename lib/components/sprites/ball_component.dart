@@ -6,7 +6,7 @@ import 'package:flame_audio/flame_audio.dart';
 
 class BallComponent extends SpriteComponent
     with HasGameRef<BreakoutGame>, CollisionCallbacks {
-  final double _spriteDiameter = 30;
+  final double _spriteDiameter = 15;
   double speed = 70.0;
   Vector2 velocity = Vector2(1.0, 1.0);
 
@@ -53,16 +53,10 @@ class BallComponent extends SpriteComponent
           game.score += 1;
           // Reverse the vertical velocity
           velocity.y = -velocity.y;
-          // You can also add logic to change the horizontal velocity
-          // Remove the brick from the game
-
-          // Decrement the total brick count
-          game.remainingBricks--;
-
-          // Check if all bricks are cleared and advance to the next level
-          if (game.remainingBricks == 0) {
-            game.checkBrickClearance();
-          }
+          // Reverse the horizontal velocity
+          velocity.x = -velocity.x;
+          
+          break; // Exit the loop after removing one brick
         }
       }
     }
@@ -73,13 +67,14 @@ class BallComponent extends SpriteComponent
     super.onCollision(intersectionPoints, other);
     if (other is ScreenHitbox) {
       final Vector2 collisionPoint = intersectionPoints.first;
-      FlameAudio.play(Globals.screeneffect);
 
       if (collisionPoint.x == 0 || collisionPoint.x == game.size.x) {
         velocity.x = -velocity.x;
+        FlameAudio.play(Globals.screeneffect);
       }
       if (collisionPoint.y == 0) {
         velocity.y = -velocity.y;
+        FlameAudio.play(Globals.screeneffect);
       }
     }
   }
