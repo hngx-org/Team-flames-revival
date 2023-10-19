@@ -4,6 +4,7 @@ import 'package:breakout_revival/utils/menu_button.dart';
 import 'package:breakout_revival/screens/breakout_game_screen.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 
@@ -33,18 +34,17 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _toggleSound() async{
+  void _toggleSound(){
     setState(() {
       isSoundOn = !isSoundOn;
     });
-   await _playBackgroundMusic();
+    _playBackgroundMusic();
   }
 
   @override
   void initState() {
     super.initState();
-     _playBackgroundMusic();
-    _controller1 = AnimationController(
+          _controller1 = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
@@ -86,6 +86,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
         const Duration(milliseconds: 900), () => _controller2.forward());
     Future.delayed(
         const Duration(milliseconds: 1300), () => _controller3.forward());
+       
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+        _playBackgroundMusic();
+
+    });
   }
 
   @override
