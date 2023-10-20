@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/menu_button.dart';
 import 'breakout_game_screen.dart'; // Import your game screen
 
-
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key? key}) : super(key: key);
 
@@ -172,8 +171,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                                 ),
                                 child: Text('CLOSE',
                                     style: GoogleFonts.biryani(
-                                      color:
-                                          const Color.fromARGB(255, 229, 151, 177),
+                                      color: const Color.fromARGB(
+                                          255, 229, 151, 177),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     )),
