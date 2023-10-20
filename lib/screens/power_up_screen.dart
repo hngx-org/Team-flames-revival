@@ -1,4 +1,5 @@
 import 'package:breakout_revival/widgets/icon_bar.dart';
+import 'package:breakout_revival/widgets/overview_menu.dart';
 import 'package:flutter/material.dart';
 
 // Define a custom class for each power-up
@@ -121,7 +122,23 @@ class _PowerUpScreenState extends State<PowerUpScreen> {
           Stack(
             children: [
               isFirstScreen
-                  ? Text("Hello")
+                  ? Container(
+                      height: MediaQuery.of(context).size.height * 0.78,
+                      child: GridView.count(
+                        // childAspectRatio: 2 / 1,
+                        crossAxisCount: 2,
+                        children: const [
+                          OverviewMenu(
+                              image: "assets/images/1.jpg", text: "Acade"),
+                          OverviewMenu(
+                              image: "assets/images/2.jpg", text: "Levels"),
+                          OverviewMenu(
+                              image: "assets/images/3.jpg", text: "Survivals"),
+                          OverviewMenu(
+                              image: "assets/images/4.jpg", text: "Retro"),
+                        ], // Map each power-up to a widget and display them in a grid
+                      ),
+                    )
                   : Container(
                       height: MediaQuery.of(context).size.height * 0.78,
                       child: GridView.count(
@@ -144,8 +161,14 @@ class _PowerUpScreenState extends State<PowerUpScreen> {
                     switchScreen();
                   },
                   icon: isFirstScreen
-                      ? Icon(Icons.arrow_forward_ios)
-                      : Icon(Icons.arrow_back_ios),
+                      ? const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 40,
+                        )
+                      : const Icon(
+                          Icons.arrow_back_ios,
+                          size: 40,
+                        ),
                 ),
               )
             ],
