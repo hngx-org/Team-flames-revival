@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:breakout_revival/components/background_component.dart';
-import 'package:breakout_revival/components/levels.dart';
 import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
@@ -12,20 +12,23 @@ import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
-class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
+class BreakoutGame extends FlameGame with HasCollisionDetection, DragCallbacks {
   int score = 0;
-  LevelManager levelManager =
-      LevelManager(); // Create an instance of LevelManager
-  int remainingBricks = 0; // Number of remaining bricks
+  int remainingBricks = 0;
   late TextComponent _scoreText;
-  late TextComponent _levelText;
+  // late TextComponent _timeText; // Add a TextComponent for the survival time
   PaddleComponent paddleComponent = PaddleComponent(joystick: joystick);
   late BrickComponent brickComponent;
   BallComponent ballComponent = BallComponent();
 
   bool gamePaused = false;
   bool isSoundOn = true;
+  int survivalTime = 0; // Add a survival time counter
+  int maxSurvivalTime = 300; // 5 minutes in seconds
+
+  late Timer timer; // Add a timer
 
   @override
   Future<void> onLoad() async {
@@ -35,8 +38,7 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     add(joystick);
     add(paddleComponent);
 
-    // Initialize brickComponent with the levelManager
-    brickComponent = BrickComponent(levelManager);
+    brickComponent = BrickComponent();
 
     add(brickComponent);
     add(ballComponent);
@@ -63,20 +65,23 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
       ),
     );
 
-    _levelText = TextComponent(
-      text:
-          'Level: ${levelManager.currentLevel}', // Set the level from levelManager
-      position: Vector2(20, 60),
-      anchor: Anchor.topLeft,
-      textRenderer: TextPaint(
-        style: TextStyle(color: BasicPalette.white.color, fontSize: 30),
-      ),
-    );
+    // _timeText = TextComponent(
+    //   // Create the TextComponent for the survival time
+    //   text: Timer(Duration(minutes: 5) as double).toString(), // Initialize with 00:00
+    //   position: Vector2(20, 60), // Position it below the score
+    //   anchor: Anchor.topLeft,
+    //   textRenderer: TextPaint(
+    //     style: TextStyle(color: BasicPalette.white.color, fontSize: 20),
+    //   ),
+    // );
 
     add(_scoreText);
-    add(_levelText);
+    // add(_timeText); // Add the survival time TextComponent
+
     add(ScreenHitbox());
     resetGame();
+    backgroundMusic();
+    startTimer(); // Start the timer
   }
 
   @override
@@ -85,20 +90,25 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
 
     if (!gamePaused) {
       _scoreText.text = 'Score: $score';
-      if (ballComponent.position.y > size.y) {
+
+      if (ballComponent.position.y > size.y ||
+          survivalTime >= maxSurvivalTime) {
         gamePaused = true;
         overlays.add(GameOverMenu.ID);
+        timer.finished; // Stop the timer
       }
     }
   }
 
-  void checkBrickClearance() {
-    if (remainingBricks == 0) {
-      levelManager.levelCleared();
-      levelManager.increaseLevel();
-      _levelText.text = 'Level: ${levelManager.currentLevel}';
+  void backgroundMusic() async {
+    if (isSoundOn) {
+      await FlameAudio.bgm.resume();
+    }
+  }
 
-      resetGame();
+  void stopBackgroundMusic() async {
+    if (isSoundOn = !isSoundOn) {
+      await FlameAudio.bgm.pause();
     }
   }
 
@@ -109,5 +119,27 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     paddleComponent.resetPosition();
     remainingBricks = brickComponent.children.length;
     gamePaused = false;
+    survivalTime = 0;
+  }
+
+  void updateSurvivalTimeText() {
+    final minutes = (survivalTime ~/ 60).toString().padLeft(2, '0');
+    final seconds = (survivalTime % 60).toString().padLeft(2, '0');
+    // _timeText.text = 'Time: $minutes:$seconds';
+  }
+
+  void startTimer() {
+    void updateTimer() {
+      if (survivalTime >= maxSurvivalTime) {
+        gamePaused = true;
+        // You can add game over logic here
+      } else {
+        survivalTime++;
+        updateSurvivalTimeText();
+        Future.delayed(Duration(seconds: 1), updateTimer);
+      }
+    }
+
+    updateTimer();
   }
 }

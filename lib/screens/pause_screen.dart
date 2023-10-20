@@ -73,23 +73,7 @@ class _PauseMenuState extends State<PauseMenu> {
             ),
           ),
           const SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Text(
-              'Level: ${widget.game.levelManager.currentLevel}',
-              style: const TextStyle(
-                fontSize: 50,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    blurRadius: 20.0,
-                    color: Colors.black,
-                    offset: Offset(0, 0),
-                  )
-                ],
-              ),
-            ),
-          ),
+          
           const SizedBox(height: 20),
           build3DButton(
             'Resume',
