@@ -4,7 +4,6 @@ import 'package:breakout_revival/components/sprites/ball_component.dart';
 import 'package:breakout_revival/components/sprites/brick_sprite.dart';
 import 'package:breakout_revival/components/sprites/paddle_sprite.dart';
 import 'package:breakout_revival/input/joystick.dart';
-
 import 'package:breakout_revival/screens/game_over_screen.dart';
 import 'package:breakout_revival/utils/games_constant.dart';
 import 'package:flame/components.dart';
@@ -12,14 +11,11 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
-// Added this import
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
-  LevelManager levelManager =
-      LevelManager(); // Create an instance of LevelManager
+  LevelManager levelManager = LevelManager(); // Create an instance of LevelManager
   int remainingBricks = 0; // Number of remaining bricks
   late TextComponent _scoreText;
   late TextComponent _levelText;
@@ -80,8 +76,6 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     add(_levelText);
     add(ScreenHitbox());
     resetGame();
-    checkBrickClearance();
-    backgroundMusic();
   }
 
   @override
@@ -97,23 +91,12 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
     }
   }
 
-  void backgroundMusic() async {
-    if (isSoundOn) {
-      await FlameAudio.bgm.resume();
-    }
-  }
-
-  void stopBackgroundMusic() async {
-    if (isSoundOn = !isSoundOn) {
-      await FlameAudio.bgm.pause();
-    }
-  }
-
   void checkBrickClearance() {
-    if (remainingBricks == 0) {
-      levelManager
-          .levelCleared(); // Inform LevelManager that the level is cleared
+    if (remainingBricks == 0 && levelManager.currentLevel != 10) {
+      levelManager.levelCleared();
+      levelManager.increaseLevel();
       _levelText.text = 'Level: ${levelManager.currentLevel}';
+      brickComponent.reload(); 
       resetGame();
     }
   }

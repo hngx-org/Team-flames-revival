@@ -38,10 +38,19 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
 
     final brickArrangement = _levelManager!.getBrickArrangementForLevel(currentLevel);
 
+    double totalBricksWidth = brickArrangement[0].length * _brickSize * 1.5;
+
+    // Calculate the horizontal offset to center the bricks
+    double xOffset = (gameRef.size.x - totalBricksWidth) / 2;
+
+    // Vertical shift
+    double yOffset = 30;
+
     for (int i = 0; i < brickArrangement.length; i++) {
       final row = brickArrangement[i];
       for (int j = 0; j < row.length; j++) {
         if (row[j] == 1) {
+          // Cycle through brick sprites
           final brickLevel = currentLevel;
           final brickSprite = brickSprites[brickLevel % brickSprites.length];
 
@@ -51,8 +60,8 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
           );
 
           brick.position = Vector2(
-            j * _brickSize * 1.5,
-            i * _brickSize * 0.866,
+            j * _brickSize * 1.5 + xOffset,
+            i * _brickSize * 0.866 + yOffset, // Apply vertical shift
           );
 
           bricks.add(brick);
@@ -60,14 +69,10 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
       }
     }
 
-    // Shuffle the bricks to arrange them in a random order
     bricks.shuffle();
-
-    double xOffset = (gameRef.size.x - bricks.length * _brickSize * 1.5) / 2;
 
     for (int i = 0; i < bricks.length; i++) {
       final brick = bricks[i];
-      brick.position += Vector2(xOffset, 20);
       add(brick);
     }
   }

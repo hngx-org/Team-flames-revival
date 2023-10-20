@@ -58,10 +58,12 @@ class BallComponent extends SpriteComponent
           game.brickComponent.remove(brick);
           game.score += 1;
 
-          if (bricks.isEmpty) {
-            // All bricks in the level are destroyed
-            _levelManager.levelCleared(); // Unlock the next level
-            _levelManager.increaseLevel(); // Increase the level
+          if (game.remainingBricks == 0 && _levelManager.currentLevel != 10) {
+            // All bricks removed
+
+            game.checkBrickClearance();
+          } else {
+            game.pauseEngine();
           }
 
           // Reverse the vertical velocity
