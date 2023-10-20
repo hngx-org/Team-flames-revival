@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Breakout Game',
       debugShowCheckedModeBanner: false,
-      home: PowerUpScreen(),
+      home: SplashScreen(),
     );
   }
 }
