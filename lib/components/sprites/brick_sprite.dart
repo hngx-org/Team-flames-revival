@@ -4,16 +4,36 @@ import 'package:flame/components.dart';
 
 class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
   final double _brickSize = 30.0;
-  List<List<int>> brickArrangement = [
-    // Define your brick arrangement here
-    // For example, a 2D list where 1 represents a brick, and 0 represents empty space.
-    [1, 0, 1, 1, 0, 1, 1],
-    [1, 1, 0, 1, 1, 0, 0],
-    [1, 1, 0, 1, 0, 1, 0],
-    [1, 1, 1, 1, 1, 0, 1],
-    [0, 1, 1, 1, 0, 1, 1],
-    [0, 1, 1, 1, 0, 1, 0],
+  List<List<List<int>>> brickArrangements = [
+    // Define your brick arrangements here
+    [
+      [1, 0, 1, 1, 0, 1, 1],
+      [1, 1, 0, 1, 1, 0, 0],
+      [1, 1, 0, 1, 0, 1, 0],
+      [1, 1, 1, 1, 1, 0, 1],
+      [0, 1, 1, 1, 0, 1, 1],
+      [0, 1, 1, 1, 0, 1, 0],
+    ],
+    [
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 0, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 0, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0],
+    ],
+    [
+      [1, 0, 0, 1, 0, 0, 1],
+      [0, 1, 1, 0, 1, 1, 0],
+      [1, 1, 1, 0, 1, 1, 1],
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 0, 1, 0, 1, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+    ],
+    // Add more arrangements as needed
   ];
+
+  int currentArrangementIndex = 0; // Index of the current arrangement
 
   // Factory constructor to create BrickComponent
   factory BrickComponent() {
@@ -35,7 +55,9 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
 
     final bricks = <SpriteComponent>[];
 
-    double totalBricksWidth = brickArrangement[0].length * _brickSize * 1.5;
+    List<List<int>> currentArrangement = brickArrangements[currentArrangementIndex];
+    
+    double totalBricksWidth = currentArrangement[0].length * _brickSize * 1.5;
 
     // Calculate the horizontal offset to center the bricks
     double xOffset = (gameRef.size.x - totalBricksWidth) / 2;
@@ -43,8 +65,8 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
     // Vertical shift
     double yOffset = 30;
 
-    for (int i = 0; i < brickArrangement.length; i++) {
-      final row = brickArrangement[i];
+    for (int i = 0; i < currentArrangement.length; i++) {
+      final row = currentArrangement[i];
       for (int j = 0; j < row.length; j++) {
         if (row[j] == 1) {
           // Cycle through brick sprites
@@ -71,6 +93,13 @@ class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
     for (int i = 0; i < bricks.length; i++) {
       final brick = bricks[i];
       add(brick);
+    }
+  }
+
+  void switchArrangement(int newIndex) {
+    if (newIndex >= 0 && newIndex < brickArrangements.length) {
+      currentArrangementIndex = newIndex;
+      reload();
     }
   }
 
