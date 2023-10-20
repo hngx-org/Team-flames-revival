@@ -15,7 +15,8 @@ import 'package:flutter/material.dart';
 
 class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   int score = 0;
-  LevelManager levelManager = LevelManager(); // Create an instance of LevelManager
+  LevelManager levelManager =
+      LevelManager(); // Create an instance of LevelManager
   int remainingBricks = 0; // Number of remaining bricks
   late TextComponent _scoreText;
   late TextComponent _levelText;
@@ -92,11 +93,11 @@ class BreakoutGame extends FlameGame with DragCallbacks, HasCollisionDetection {
   }
 
   void checkBrickClearance() {
-    if (remainingBricks == 0 && levelManager.currentLevel != 10) {
+    if (remainingBricks == 0) {
       levelManager.levelCleared();
       levelManager.increaseLevel();
       _levelText.text = 'Level: ${levelManager.currentLevel}';
-      brickComponent.reload(); 
+
       resetGame();
     }
   }

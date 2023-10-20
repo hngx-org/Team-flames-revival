@@ -7,7 +7,7 @@ import '../levels.dart';
 
 class BrickComponent extends PositionComponent with HasGameRef<BreakoutGame> {
   final double _brickSize = 30.0;
-  int totalBricks = 30; // Initial total number of bricks
+  // int totalBricks = 50; // Initial total number of bricks
 
   late SharedPreferences _prefs;
   LevelManager? _levelManager;
