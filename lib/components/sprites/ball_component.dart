@@ -6,7 +6,8 @@ import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../levels.dart';
+import '../../screens/game_over_screen.dart';
+
 
 class BallComponent extends SpriteComponent
     with HasGameRef<BreakoutGame>, CollisionCallbacks {
@@ -14,7 +15,7 @@ class BallComponent extends SpriteComponent
   double speed = 70.0;
   Vector2 velocity = Vector2(1.0, 1.0);
 
-  LevelManager _levelManager = LevelManager();
+  double elapsedTime = 0; // Add an elapsed time counter
 
   @override
   Future<void> onLoad() async {
@@ -34,6 +35,15 @@ class BallComponent extends SpriteComponent
   @override
   void update(double dt) {
     super.update(dt);
+
+    elapsedTime += dt; // Update the elapsed time
+
+    if (elapsedTime >= maxGameDuration) {
+      // End the game after 5 minutes
+      gameRef.gamePaused = true;
+      gameRef.overlays.add(GameOverMenu.ID);
+    }
+
     position += velocity * speed * dt;
 
     // Check for collisions with bricks and paddle
@@ -58,10 +68,8 @@ class BallComponent extends SpriteComponent
           game.brickComponent.remove(brick);
           game.score += 1;
 
-          if (bricks.isEmpty) {
-            // All bricks in the level are destroyed
-            _levelManager.levelCleared(); // Unlock the next level
-            _levelManager.increaseLevel(); // Increase the level
+          if (bricks.isEmpty && game.survivalTime !=0) {
+            game.brickComponent.reload();
           }
 
           // Reverse the vertical velocity
@@ -73,9 +81,7 @@ class BallComponent extends SpriteComponent
     }
 
     // Check if the level needs to be incremented
-    if (_levelManager.currentLevel != game.levelManager) {
-      game.levelManager = _levelManager;
-    }
+    
   }
 
   @override
@@ -103,5 +109,11 @@ class BallComponent extends SpriteComponent
 
     // You can also reset the velocity to its initial state if needed
     velocity = Vector2(1.0, 1.0);
+
+    // Reset the elapsed time
+    elapsedTime = 0;
   }
+
+  // Add a maximum game duration constant for 5 minutes
+  static const double maxGameDuration = 300; // 5 minutes in seconds
 }

@@ -60,23 +60,7 @@ class GameOverMenu extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'Level: ${game.levelManager.currentLevel}',
-                  style: const TextStyle(
-                    fontSize: 50,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 20.0,
-                        color: Colors.black,
-                        offset: Offset(0, 0),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+              
               const SizedBox(height: 10),
               build3DButton(
                 'Play Again',
@@ -87,16 +71,16 @@ class GameOverMenu extends StatelessWidget {
                 },
               ),
               SizedBox(height: 20),
-            
-          build3DButton(
-            'Main Menu',
-            onPressed: () {
-              game.overlays.remove(PauseMenu.ID);
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => MenuScreen(),
-              ));
-            },
-          ),
+              build3DButton(
+                'Main Menu',
+                onPressed: () {
+                  game.overlays.remove(PauseMenu.ID);
+                 
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => MenuScreen(),
+                  ));
+                },
+              ),
             ],
           ),
         ),

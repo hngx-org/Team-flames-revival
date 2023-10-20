@@ -73,23 +73,7 @@ class _PauseMenuState extends State<PauseMenu> {
             ),
           ),
           const SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Text(
-              'Level: ${widget.game.levelManager.currentLevel}',
-              style: const TextStyle(
-                fontSize: 50,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    blurRadius: 20.0,
-                    color: Colors.black,
-                    offset: Offset(0, 0),
-                  )
-                ],
-              ),
-            ),
-          ),
+          
           const SizedBox(height: 20),
           build3DButton(
             'Resume',
@@ -111,16 +95,16 @@ class _PauseMenuState extends State<PauseMenu> {
           ),
           const SizedBox(height: 20),
           build3DButton(
-            isSoundOn ? 'Music Off' : 'Music On',
+            isSoundOn ? 'Music On' : 'Music Off',
             // label: isSoundOn ? 'Sound Off' : 'Sound On',
             onPressed: () {
               setState(() {
                 isSoundOn = !isSoundOn;
               });
               if (isSoundOn) {
-                widget.game.backgroundMusic();
+                // widget.game.toggleSound();
               } else {
-                widget.game.stopBackgroundMusic();
+                // widget.game.toggleSound();
               }
             },
           )
