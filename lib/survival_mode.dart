@@ -2,30 +2,31 @@ import 'dart:async';
 import 'dart:math';
 import 'package:breakout/game/components/ball.dart';
 import 'package:breakout/game/components/brick.dart';
-import 'package:breakout/level_three.dart';
+import 'package:breakout/coverscreen.dart';
+import 'package:breakout/gameoverscreen.dart';
+import 'package:breakout/level_two.dart';
+import 'package:breakout/player.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'coverscreen.dart';
-import 'gameoverscreen.dart';
-import 'player.dart';
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
-class LevelTwo extends StatefulWidget {
-  static const routeName = "level_two";
-  LevelTwo();
+class SurvivalScreen extends StatefulWidget {
+  const SurvivalScreen({super.key});
 
   @override
-  State<LevelTwo> createState() => _LevelTwoState();
+  State<SurvivalScreen> createState() => _SurvivalScreenState();
 }
 
-class _LevelTwoState extends State<LevelTwo> {
+class _SurvivalScreenState extends State<SurvivalScreen> {
+ late List myBricks ;
   // Ball variables
   double ballX = 0;
   double ballY = 0;
-  double ballXIncrement = 0.015; // Increase ball speed
-  double ballYIncrement = 0.015; // Increase ball speed
+  double ballXIncrement = 0.01;
+  double ballYIncrement = 0.01;
   double ballRadius = 0.02; // Represents 5% of the screen width
 
   int score = 0;
@@ -36,15 +37,13 @@ class _LevelTwoState extends State<LevelTwo> {
   double playerX = -0.2;
   double playerWidth = 0.4;
 
-  // Player variables
-  double originalPlayerWidth = 0.4;
-
   // Bricks configuration
-  static int numberOfBricksInRow = 6; // Increase the number of bricks in a row
-  static int numberOfRows = 6; // Increase the number of rows
-  static double brickWidth = 0.3;
+  static double brickWidth = 0.4;
   static double brickHeight = 0.05;
   static double brickGap = 0.01;
+  static int numberOfBricksInRow = 4;
+  static int numberOfRows =
+      4; // adjust this value for the number of rows you want
   static double wallGap = 0.5 *
       (2 -
           numberOfBricksInRow * brickWidth -
@@ -52,39 +51,109 @@ class _LevelTwoState extends State<LevelTwo> {
 
   static double firstBrickX = -1 + wallGap;
   static double firstBrickY = -0.9;
-  static double secondRowBrickY = firstBrickY + brickHeight + brickGap;
   bool hasWon = false;
+    List generateBrickPattern() {
+    List bricks = [];
+    for (int row = 0; row < numberOfRows; row++) {
+      for (int col = 0; col < numberOfBricksInRow; col++) {
+        double brickX = firstBrickX + col * (brickWidth + brickGap);
+        double brickY = getBrickY(row);
+        bool isBroken = false;
+        Color color = brickColors[
+            (row + col) % brickColors.length]; // Assigning color in a pattern
+        bricks.add([brickX, brickY, isBroken, color]);
+      }
+    }
+    return bricks;
+  }
+
+  List generateHeartPattern() {
+  List bricks = [];
+  for (int row = 0; row < heartShape.length; row++) {
+    for (int col = 0; col < heartShape[row].length; col++) {
+      if (heartShape[row][col] == 1) {  // Only add a brick if the matrix element is 1
+        double brickX = firstBrickX + col * (brickWidth + brickGap);
+        double brickY = getBrickY(row);  // Assume getBrickY computes the y-position based on the row index
+        bool isBroken = false;
+        Color color = brickColors[(row + col) % brickColors.length];
+        bricks.add([brickX, brickY, isBroken, color]);
+      }
+    }
+  }
+  return bricks;
+}
+  
+
   bool isGamePaused = true;
+  static double secondRowBrickY = firstBrickY + brickHeight + brickGap;
   ConfettiController _controllerCenter =
       ConfettiController(duration: Duration(seconds: 2));
   ConfettiController _controllerLeft =
       ConfettiController(duration: Duration(seconds: 2));
   ConfettiController _controllerRight =
       ConfettiController(duration: Duration(seconds: 2));
-  int level = 2;
+  int level = 1; // Initialize the game at level 1
+  Timer? gameTimer; // This will hold our game loop timer
+  int lives = 3;
+
   static double getBrickY(int rowIndex) {
     return firstBrickY + rowIndex * (brickHeight + brickGap);
   }
 
-  List myBricks = List.generate(
-    numberOfRows * numberOfBricksInRow,
-    (i) => [
-      firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-      getBrickY(i ~/ numberOfBricksInRow),
-      false
-    ],
-  );
+  List<Color> brickColors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.yellow
+  ];
+  // List myBricks = [];
+  //  SurvivalScreen() {
+  //  myBricks = generateBrickPattern();
+  // }
+
+
+
+  // List myBricks = List.generate(
+  //   numberOfRows * numberOfBricksInRow,
+  //   (i) => [
+  //     firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
+  //     getBrickY(i ~/ numberOfBricksInRow),
+  //     false
+  //   ],
+  // );
+  
+ 
+ 
+  // List myBricks = generateBrickPattern();
 
   // Game state variables
   bool hasStartGame = false;
   bool isGameOver = false;
   bool gameWon = false;
-  Timer? gameTimer;
-  List<int> powerUpBrickIndices = [];
-  // PowerUp powerUp;
+
+  bool isGameWon() {
+    for (int i = 0; i < myBricks.length; i++) {
+      if (!myBricks[i][2]) {
+        return false; // There are still uncleared bricks
+      }
+    }
+    return true; // All bricks are cleared
+  }
+
+  bool isPlayerDead() {
+    if (ballY >= 1) {
+      lives--; // Decrement lives when ball is missed
+      if (lives <= 0) {
+        return true;
+      }
+      // Reset ball position, or any other logic you want to apply when ball is missed
+      ballY = 0;
+      ballX = 0;
+    }
+    return false;
+  }
 
   // Game logic methods
-
   void startGame() {
     // / Ensure any existing timer is canceled before starting a new one
     hasStartGame = true;
@@ -125,11 +194,14 @@ class _LevelTwoState extends State<LevelTwo> {
     });
   }
 
-  bool isPlayerDead() {
-    if (ballY >= 1) {
-      return true;
+  bool allBricksBroken() {
+    for (var brick in myBricks) {
+      if (brick[2] == false) {
+        // If the brick is not broken
+        return false;
+      }
     }
-    return false;
+    return true; // All bricks are broken
   }
 
   void checkForBrokenBricks() {
@@ -142,14 +214,14 @@ class _LevelTwoState extends State<LevelTwo> {
         setState(() {
           myBricks[i][2] = true;
 
-          // Check if the brick is a power-up brick
-          // if (powerUpBrickIndices.contains(i)) {
-          //   powerUp.active = true;
-          //   powerUp.powerUpX = myBricks[i][0] + brickWidth / 2;
-          //   powerUp.powerUpY = myBricks[i][1] + brickHeight / 2;
-          // }
+          // Adjust ball's position based on its direction
+          if (ballYDirection == Direction.DOWN) {
+            ballY = myBricks[i][1] - ballRadius;
+          } else {
+            ballY = myBricks[i][1] + brickHeight + ballRadius;
+          }
 
-          // Handle collision with bricks
+          // Reverse the ball's Y direction
           ballYDirection =
               ballYDirection == Direction.DOWN ? Direction.UP : Direction.DOWN;
 
@@ -201,7 +273,7 @@ class _LevelTwoState extends State<LevelTwo> {
                         Navigator.pop(context);
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) =>
-                                LevelThree())); // moe to level 3
+                                LevelTwo())); // Resetting the game for now, you can replace this with logic for the next level
                       },
                     ),
                   ),
@@ -214,16 +286,6 @@ class _LevelTwoState extends State<LevelTwo> {
         }
       }
     }
-  }
-
-  bool allBricksBroken() {
-    for (var brick in myBricks) {
-      if (brick[2] == false) {
-        // If the brick is not broken
-        return false;
-      }
-    }
-    return true; // All bricks are broken
   }
 
   void pauseGame() {
@@ -242,6 +304,34 @@ class _LevelTwoState extends State<LevelTwo> {
     });
   }
 
+  // String findMin(double a, double b, double c, double d) {
+  //   List<double> myList = [a, b, c, d];
+  //   double currentMin = a;
+  //   for (int i = 0; i < myList.length; i++) {
+  //     if (myList[i] < currentMin) {
+  //       currentMin = myList[i];
+  //     }
+  //   }
+  //   if ((currentMin - a).abs() < 0.01) {
+  //     return 'left';
+  //   } else if ((currentMin - b).abs() < 0.01) {
+  //     return 'right';
+  //   } else if ((currentMin - c).abs() < 0.01) {
+  //     return 'top';
+  //   } else if ((currentMin - d).abs() < 0.01) {
+  //     return 'bottom';
+  //   }
+
+  //   return '';
+  // }
+
+  // bool isPlayerDead() {
+  //   if (ballY >= 1) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
   void moveBall() {
     setState(() {
       if (ballXDirection == Direction.LEFT) {
@@ -254,17 +344,6 @@ class _LevelTwoState extends State<LevelTwo> {
       } else if (ballYDirection == Direction.UP) {
         ballY -= ballYIncrement;
       }
-
-      // Check for power-up collision
-      // if (powerUp.active &&
-      //     ballX + ballRadius >= powerUp.powerUpX - powerUp.powerUpRadius &&
-      //     ballX - ballRadius <= powerUp.powerUpX + powerUp.powerUpRadius &&
-      //     ballY + ballRadius >= powerUp.powerUpY - powerUp.powerUpRadius &&
-      //     ballY - ballRadius <= powerUp.powerUpY + powerUp.powerUpRadius) {
-      //   // Increase player's size
-      //   playerWidth *= 2;
-      //   powerUp.active = false; // Deactivate the power-up
-      // }
     });
   }
 
@@ -298,42 +377,60 @@ class _LevelTwoState extends State<LevelTwo> {
       }
     });
   }
+       List<List<int>> heartShape = [
+    [0, 0, 1, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+  ];
 
   void resetGame() {
+    print('reserting game>>>>>>>>>>>>>>>>>>>>>');
     setState(() {
       // Reset game variables
       isGameOver = false;
       hasStartGame = false;
+      gameWon = false;
       playerX = -0.2;
       ballY = 0;
       ballX = 0;
+      lives = 3;
 
       // Reset score to zero
       score = 0;
 
-      // Increase the number of bricks and rows for the new level
-      numberOfBricksInRow = 6;
-      numberOfRows = 6;
-
-      // Reset bricks to initial state for the new level
-      myBricks = List.generate(
-        numberOfRows * numberOfBricksInRow,
-        (i) => [
-          firstBrickX + (i % numberOfBricksInRow) * (brickWidth + brickGap),
-          getBrickY(i ~/ numberOfBricksInRow),
-          false
-        ],
-      );
-
-      // Increase the ball speed for the new level
-      ballXIncrement = 0.02;
-      ballYIncrement = 0.02;
+      myBricks = generateBrickPattern();  
     });
   }
 
+   // Method to display lives using heart icons
+  Widget buildLivesDisplay() {
+    List<Widget> hearts = [];
+    for (int i = 0; i < 3; i++) {
+      hearts.add(
+        Icon(
+          i < lives ? Icons.favorite : Icons.favorite_border,
+          color: Colors.red,
+          size: 24,
+        ),
+      );
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: hearts,
+    );
+  }
+
   checkAllBricksBroken() {
+    print('Checking all bricks broken>>>>>>>>>>>>>>>>>>>>>');
     bool allBroken = myBricks.every((brick) => brick[2] == true);
     if (allBroken) {
+      print('All bricks broken>>>>>>>>>>>>>>>>>>>>>');
       return true;
     } else {
       return false;
@@ -346,6 +443,8 @@ class _LevelTwoState extends State<LevelTwo> {
     _controllerCenter = ConfettiController(duration: Duration(seconds: 2));
     _controllerLeft = ConfettiController(duration: Duration(seconds: 2));
     _controllerRight = ConfettiController(duration: Duration(seconds: 2));
+     myBricks = generateBrickPattern();
+
     super.initState();
   }
 
@@ -379,7 +478,7 @@ class _LevelTwoState extends State<LevelTwo> {
 
                 Positioned(
                   top: 10,
-                  left: 10,
+                  left: 90,
                   child: Text(
                     "Level: $level",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -400,7 +499,12 @@ class _LevelTwoState extends State<LevelTwo> {
                     ),
                   ),
                 ),
-
+                // Display lives
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: buildLivesDisplay(),
+                ),
                 // Tap to play
                 CoverScreen(
                   tapToPlay: hasStartGame,
@@ -411,9 +515,9 @@ class _LevelTwoState extends State<LevelTwo> {
                 // Game over screen
                 GameOverScreen(
                   isGameOver: isGameOver,
-                  function: () {
-                    resetGame();
-                  },
+                  function: () =>
+                    resetGame()
+                  
                 ),
 
                 // Ball
@@ -429,13 +533,6 @@ class _LevelTwoState extends State<LevelTwo> {
                   playerWidth: playerWidth,
                 ),
 
-                // if (powerUp.active)
-                //   PowerUpBox(
-                //     powerUpX: powerUp.powerUpX,
-                //     powerUpY: powerUp.powerUpY,
-                //     powerUpRadius: powerUp.powerUpRadius,
-                //   ),
-
                 ...List.generate(
                   myBricks.length,
                   (i) => MyBrick(
@@ -444,10 +541,11 @@ class _LevelTwoState extends State<LevelTwo> {
                     brickWidth: brickWidth,
                     brickHeight: brickHeight,
                     brickBroken: myBricks[i][2],
-                    color: Colors.deepPurple,
+                    color: myBricks[i][3], // Pass color from myBricks list
                   ),
                 ),
 
+                // The confetti views
                 Align(
                   alignment: Alignment.topCenter,
                   child: ConfettiWidget(
@@ -505,41 +603,4 @@ class _LevelTwoState extends State<LevelTwo> {
       ),
     );
   }
-}
-
-class PowerUpBox extends StatelessWidget {
-  final double powerUpX;
-  final double powerUpY;
-  final double powerUpRadius;
-
-  PowerUpBox({
-    required this.powerUpX,
-    required this.powerUpY,
-    required this.powerUpRadius,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: (powerUpX - powerUpRadius) * MediaQuery.of(context).size.width,
-      top: (powerUpY - powerUpRadius) * MediaQuery.of(context).size.height,
-      child: Container(
-        width: 2 * powerUpRadius * MediaQuery.of(context).size.width,
-        height: 2 * powerUpRadius * MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          color: Colors.green,
-          shape: BoxShape.circle,
-        ),
-      ),
-    );
-  }
-}
-
-class PowerUp {
-  double powerUpX;
-  double powerUpY;
-  double powerUpRadius;
-  bool active;
-
-  PowerUp(this.powerUpX, this.powerUpY, this.powerUpRadius, this.active);
 }

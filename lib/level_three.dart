@@ -336,6 +336,7 @@ class _LevelThreeState extends State<LevelThree> {
                     brickWidth: brickWidth,
                     brickHeight: brickHeight,
                     brickBroken: myBricks[i][2],
+                    color:  Colors.deepPurple,
                   ),
                 ),
 

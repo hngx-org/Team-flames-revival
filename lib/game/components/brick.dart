@@ -40,13 +40,15 @@ class MyBrick extends StatelessWidget {
   final double brickX;
   final double brickY;
   final bool brickBroken;
+  final Color ? color;
 
   const MyBrick({
     required this.brickWidth,
     required this.brickHeight,
     required this.brickX,
     required this.brickY,
-    required this.brickBroken,
+    required this.brickBroken, 
+    required this.color,
   });
 
   @override
@@ -66,7 +68,7 @@ class MyBrick extends StatelessWidget {
               child: Container(
                 height: actualHeight,
                 width: actualWidth,
-                color: Colors.deepPurple,
+                color: color ?? Colors.deepPurple,
               ),
             ),
     );
