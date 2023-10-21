@@ -55,13 +55,13 @@ class _LevelTwoState extends State<LevelTwo> {
   static double secondRowBrickY = firstBrickY + brickHeight + brickGap;
   bool hasWon = false;
   bool isGamePaused = true;
-    ConfettiController _controllerCenter =
+  ConfettiController _controllerCenter =
       ConfettiController(duration: Duration(seconds: 2));
   ConfettiController _controllerLeft =
       ConfettiController(duration: Duration(seconds: 2));
   ConfettiController _controllerRight =
       ConfettiController(duration: Duration(seconds: 2));
-      int level = 2;
+  int level = 2;
   static double getBrickY(int rowIndex) {
     return firstBrickY + rowIndex * (brickHeight + brickGap);
   }
@@ -79,15 +79,13 @@ class _LevelTwoState extends State<LevelTwo> {
   bool hasStartGame = false;
   bool isGameOver = false;
   bool gameWon = false;
-   Timer? gameTimer; 
-   List<int> powerUpBrickIndices = [];
-    // PowerUp powerUp;
-
+  Timer? gameTimer;
+  List<int> powerUpBrickIndices = [];
+  // PowerUp powerUp;
 
   // Game logic methods
 
-
-   void startGame() {
+  void startGame() {
     // / Ensure any existing timer is canceled before starting a new one
     hasStartGame = true;
     if (gameTimer != null) {
@@ -126,13 +124,13 @@ class _LevelTwoState extends State<LevelTwo> {
       // }
     });
   }
-    bool isPlayerDead() {
+
+  bool isPlayerDead() {
     if (ballY >= 1) {
       return true;
     }
     return false;
   }
-
 
   void checkForBrokenBricks() {
     for (int i = 0; i < myBricks.length; i++) {
@@ -218,8 +216,7 @@ class _LevelTwoState extends State<LevelTwo> {
     }
   }
 
-   
-     bool allBricksBroken() {
+  bool allBricksBroken() {
     for (var brick in myBricks) {
       if (brick[2] == false) {
         // If the brick is not broken
@@ -229,8 +226,7 @@ class _LevelTwoState extends State<LevelTwo> {
     return true; // All bricks are broken
   }
 
-
-    void pauseGame() {
+  void pauseGame() {
     if (gameTimer != null) {
       gameTimer!.cancel();
     }
@@ -334,10 +330,10 @@ class _LevelTwoState extends State<LevelTwo> {
       ballYIncrement = 0.02;
     });
   }
-    checkAllBricksBroken() {
+
+  checkAllBricksBroken() {
     bool allBroken = myBricks.every((brick) => brick[2] == true);
     if (allBroken) {
-
       return true;
     } else {
       return false;
@@ -362,7 +358,6 @@ class _LevelTwoState extends State<LevelTwo> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -382,7 +377,7 @@ class _LevelTwoState extends State<LevelTwo> {
               children: [
                 // Background elements
 
-                   Positioned(
+                Positioned(
                   top: 10,
                   left: 10,
                   child: Text(
@@ -406,40 +401,40 @@ class _LevelTwoState extends State<LevelTwo> {
                   ),
                 ),
 
-                  // Tap to play
-                  CoverScreen(
-                    tapToPlay: hasStartGame,
-                    isGameOver: isGameOver,
-                    hasGameStarted: hasStartGame,
-                  ),
+                // Tap to play
+                CoverScreen(
+                  tapToPlay: hasStartGame,
+                  isGameOver: isGameOver,
+                  hasGameStarted: hasStartGame,
+                ),
 
-                  // Game over screen
-                  GameOverScreen(
-                    isGameOver: isGameOver,
-                    function: () {
-                      resetGame();
-                    },
-                  ),
+                // Game over screen
+                GameOverScreen(
+                  isGameOver: isGameOver,
+                  function: () {
+                    resetGame();
+                  },
+                ),
 
-                  // Ball
-                  MyBall(
-                    ballX: ballX,
-                    ballY: ballY,
-                    ballRadius: ballRadius,
-                  ),
+                // Ball
+                MyBall(
+                  ballX: ballX,
+                  ballY: ballY,
+                  ballRadius: ballRadius,
+                ),
 
-                  // Player
-                  MyPlayer(
-                    playerX: playerX,
-                    playerWidth: playerWidth,
-                  ),
+                // Player
+                MyPlayer(
+                  playerX: playerX,
+                  playerWidth: playerWidth,
+                ),
 
-                  // if (powerUp.active)
-                  //   PowerUpBox(
-                  //     powerUpX: powerUp.powerUpX,
-                  //     powerUpY: powerUp.powerUpY,
-                  //     powerUpRadius: powerUp.powerUpRadius,
-                  //   ),
+                // if (powerUp.active)
+                //   PowerUpBox(
+                //     powerUpX: powerUp.powerUpX,
+                //     powerUpY: powerUp.powerUpY,
+                //     powerUpRadius: powerUp.powerUpRadius,
+                //   ),
 
                 ...List.generate(
                   myBricks.length,
@@ -452,7 +447,7 @@ class _LevelTwoState extends State<LevelTwo> {
                   ),
                 ),
 
-                     Align(
+                Align(
                   alignment: Alignment.topCenter,
                   child: ConfettiWidget(
                     confettiController: _controllerCenter,
@@ -489,28 +484,25 @@ class _LevelTwoState extends State<LevelTwo> {
                   ),
                 ),
 
-
-                  // Score display
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Text(
-                      'Score: $score',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                // Score display
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Text(
+                    'Score: $score',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-
-
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
