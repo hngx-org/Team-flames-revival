@@ -155,12 +155,12 @@ class _HomePageState extends State<HomePage> {
           ballY + ballRadius >= myBricks[i][1] &&
           ballY - ballRadius <= myBricks[i][1] + brickHeight) {
         //run a quick check
-        // if (ballX + ballRadius >= myBricks[1][0] &&
-        //     ballX - ballRadius <= myBricks[1][0] + brickWidth &&
-        //     ballY + ballRadius >= myBricks[1][1] &&
-        //     ballY - ballRadius <= myBricks[1][1] + brickHeight) {
-        powerUpFall();
-        // }
+        if (ballX + ballRadius >= myBricks[1][0] &&
+            ballX - ballRadius <= myBricks[1][0] + brickWidth &&
+            ballY + ballRadius >= myBricks[1][1] &&
+            ballY - ballRadius <= myBricks[1][1] + brickHeight) {
+          powerUpFall();
+        }
         setState(() {
           //set brick to broken
           myBricks[i][2] = true;
