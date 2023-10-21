@@ -390,6 +390,7 @@ class _SurvivalScreenState extends State<SurvivalScreen> {
   ];
 
   void resetGame() {
+    print('reserting game>>>>>>>>>>>>>>>>>>>>>');
     setState(() {
       // Reset game variables
       isGameOver = false;
@@ -514,9 +515,9 @@ class _SurvivalScreenState extends State<SurvivalScreen> {
                 // Game over screen
                 GameOverScreen(
                   isGameOver: isGameOver,
-                  function: () {
-                    resetGame();
-                  },
+                  function: () =>
+                    resetGame()
+                  
                 ),
 
                 // Ball
