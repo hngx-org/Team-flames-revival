@@ -1,3 +1,4 @@
+import 'package:breakout/power_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -44,6 +45,22 @@ class GameOverScreen extends StatelessWidget {
                 ),
               ),
             ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => PowerUpScreen()));
+                },
+                child: Container(
+                  alignment: const Alignment(0, 0.03),
+                  child: const Text(
+                    'Main Menu',
+                    style: TextStyle(
+                      color: Colors.deepPurple,
+                      fontSize: 15
+                    ),
+                  ),
+                ),
+              )
           ],
         )
         : Container();

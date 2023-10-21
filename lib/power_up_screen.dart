@@ -1,4 +1,6 @@
 import 'package:breakout/homepage.dart';
+import 'package:breakout/level_screen.dart';
+import 'package:breakout/survival_mode.dart';
 import 'package:breakout/widgets/icon_bar.dart';
 import 'package:breakout/widgets/overview_menu.dart';
 import 'package:flutter/material.dart';
@@ -154,7 +156,7 @@ class _PowerUpScreenState extends State<PowerUpScreen> {
                                 image: "assets/images/1.jpg", 
                                 text: "Start Game", 
                                 onTap: (){
-                                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                  Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => HomePage(),
                                   ),
                                   );
@@ -163,12 +165,23 @@ class _PowerUpScreenState extends State<PowerUpScreen> {
                             OverviewMenu(
                                 image: "assets/images/2.jpg",
                                 text: "Levels",
-                                onTap: (){}
+                                onTap: (){
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => LevelScreen(),
+                                  ),
+                                  );
+                                }
                                 ),
                             OverviewMenu(
                                 image: "assets/images/3.jpg",
                                 text: "Survivals",
-                                onTap: (){}),
+                                onTap: (){
+                                    Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SurvivalScreen(),
+                                    ),
+                                  );
+                                }),
                             OverviewMenu(
                                 image: "assets/images/4.jpg", text: "Retro",
                                 onTap: (){}),

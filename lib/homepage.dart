@@ -447,6 +447,7 @@ class _HomePageState extends State<HomePage> {
                     brickWidth: brickWidth,
                     brickHeight: brickHeight,
                     brickBroken: myBricks[i][2],
+                    color: Colors.deepPurple,
                   ),
                 ),
 
