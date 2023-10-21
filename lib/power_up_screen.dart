@@ -1,3 +1,4 @@
+import 'package:breakout/homepage.dart';
 import 'package:breakout/widgets/icon_bar.dart';
 import 'package:breakout/widgets/overview_menu.dart';
 import 'package:flutter/material.dart';
@@ -148,16 +149,29 @@ class _PowerUpScreenState extends State<PowerUpScreen> {
                         child: GridView.count(
                           // childAspectRatio: 2 / 1,
                           crossAxisCount: 2,
-                          children: const [
+                          children:  [
                             OverviewMenu(
-                                image: "assets/images/1.jpg", text: "Start Game"),
+                                image: "assets/images/1.jpg", 
+                                text: "Start Game", 
+                                onTap: (){
+                                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                    builder: (context) => HomePage(),
+                                  ),
+                                  );
+                                },
+                                ),
                             OverviewMenu(
-                                image: "assets/images/2.jpg", text: "Levels"),
+                                image: "assets/images/2.jpg",
+                                text: "Levels",
+                                onTap: (){}
+                                ),
                             OverviewMenu(
                                 image: "assets/images/3.jpg",
-                                text: "Survivals"),
+                                text: "Survivals",
+                                onTap: (){}),
                             OverviewMenu(
-                                image: "assets/images/4.jpg", text: "Retro"),
+                                image: "assets/images/4.jpg", text: "Retro",
+                                onTap: (){}),
                           ], // Map each power-up to a widget and display them in a grid
                         ),
                       )

@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 class OverviewMenu extends StatelessWidget {
   final String image;
   final String text;
+  final Function onTap;
   const OverviewMenu({
     required this.image,
-    required this.text,
+    required this.text, 
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap(),
       borderRadius: const BorderRadius.all(
         Radius.circular(100),
       ),
