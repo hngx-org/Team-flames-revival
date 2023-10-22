@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Atari Game',
       debugShowCheckedModeBanner: false,
       // home: SplashScreen(),
-      home: HomePage(),
+      home: LevelTwo(),
       routes: {
         LevelTwo.routeName: (context) => LevelTwo(),
         LevelThree.routeName: (context) => LevelThree(),

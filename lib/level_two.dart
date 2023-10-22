@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:breakout/game/components/ball.dart';
 import 'package:breakout/game/components/brick.dart';
 import 'package:breakout/level_three.dart';
+import 'package:breakout/widgets/power_up.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -139,6 +140,12 @@ class _LevelTwoState extends State<LevelTwo> {
           ballX - ballRadius <= myBricks[i][0] + brickWidth &&
           ballY + ballRadius >= myBricks[i][1] &&
           ballY - ballRadius <= myBricks[i][1] + brickHeight) {
+        if (ballX + ballRadius >= myBricks[1][0] &&
+            ballX - ballRadius <= myBricks[1][0] + brickWidth &&
+            ballY + ballRadius >= myBricks[1][1] &&
+            ballY - ballRadius <= myBricks[1][1] + brickHeight) {
+          powerUpFall();
+        }
         setState(() {
           myBricks[i][2] = true;
 
@@ -340,13 +347,32 @@ class _LevelTwoState extends State<LevelTwo> {
     }
   }
 
+  var yVal;
+
   @override
   void initState() {
     // TODO: implement initState
+    yVal = myBricks[1][1];
+
     _controllerCenter = ConfettiController(duration: Duration(seconds: 2));
     _controllerLeft = ConfettiController(duration: Duration(seconds: 2));
     _controllerRight = ConfettiController(duration: Duration(seconds: 2));
     super.initState();
+  }
+
+  //function for powerUp fall
+  var isActive = true;
+  void powerUpFall() {
+    Timer.periodic(Duration(milliseconds: 10), (timer) {
+      setState(() {
+        yVal += 0.004;
+        if (yVal >= 0.9 && yVal >= playerX) {
+          playerWidth = 0.6;
+          timer.cancel();
+          isActive = false;
+        }
+      });
+    });
   }
 
   @override
@@ -429,12 +455,13 @@ class _LevelTwoState extends State<LevelTwo> {
                   playerWidth: playerWidth,
                 ),
 
-                // if (powerUp.active)
-                //   PowerUpBox(
-                //     powerUpX: powerUp.powerUpX,
-                //     powerUpY: powerUp.powerUpY,
-                //     powerUpRadius: powerUp.powerUpRadius,
-                //   ),
+                PowerUPs(
+                  height: brickHeight,
+                  width: brickWidth,
+                  powerUpX: myBricks[1][0],
+                  powerUpY: yVal,
+                  active: isActive,
+                ),
 
                 ...List.generate(
                   myBricks.length,
